@@ -15,6 +15,7 @@ from django.core.mail import EmailMessage
 from rest_framework.authtoken.models import Token
 
 # reset password imports
+from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -216,6 +217,54 @@ def reset_password(request):
         context = None
         status_flag = True
         message = 'Password reset success'
+        status_code = status.HTTP_200_OK
+        context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+        return Response(status=status_code, data= context)
+
+    except Exception as excepted_message:
+        print(excepted_message)
+        context =  None
+        status_flag = False
+        message = "Password Reset Failed"
+        status_code = status.HTTP_400_BAD_REQUEST
+        context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+        return Response(status=status_code, data= context)
+
+@api_view(['POST'])
+def change_password(request):
+    data = request.data.copy()
+    try:
+        request_data = request.data
+        
+        user = User.objects.get(id=request.user.id)
+
+        email = request.user.email
+        password = request_data['oldPassword']
+        if email and password:
+            user = authenticate(request=self.context['request'], email=str(email).strip().lower(), password=password)
+        
+        if not user:
+            context = None
+            status_flag = False
+            message = "Old Password is not a correct one"
+            status_code = status.HTTP_400_BAD_REQUEST
+            context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+            return Response(status=status_code, data= context)
+        
+        if not data["newPasswordConfirmation"] != data["newPassword"]:
+            context = None
+            status_flag = False
+            message = "New Password and New Confirmation Password are not Matching"
+            status_code = status.HTTP_406_NOT_ACCEPTABLE
+            context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+            return Response(status=status_code, data= context)
+    
+        user.set_password(data["newPassword"])
+        user.save()
+
+        context = None
+        status_flag = True
+        message = 'Password Changed successfully'
         status_code = status.HTTP_200_OK
         context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
         return Response(status=status_code, data= context)

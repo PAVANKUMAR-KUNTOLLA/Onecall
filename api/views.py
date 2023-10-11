@@ -10,6 +10,8 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from users.models import *
+
 # Create your views here.
 
 def index(request):
@@ -21,3 +23,5 @@ def application(request):
 
 def serve_app(request, exception):
     return render(request, 'index.html')
+
+

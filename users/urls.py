@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/v1/profile/', profile),
     path('api/v1/forgot-password/', forgot_password),
     path('api/v1/reset-password/', reset_password),
+    path('api/v1/change-password/', change_password),
 ]
