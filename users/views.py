@@ -231,17 +231,17 @@ def reset_password(request):
         return Response(status=status_code, data= context)
 
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def change_password(request):
     data = request.data.copy()
     try:
-        request_data = request.data
-        
         user = User.objects.get(id=request.user.id)
 
         email = request.user.email
-        password = request_data['oldPassword']
+        password = data['oldPassword']
         if email and password:
-            user = authenticate(request=self.context['request'], email=str(email).strip().lower(), password=password)
+            user = authenticate(request=request, email=str(email).strip().lower(), password=password)
         
         if not user:
             context = None
@@ -251,7 +251,7 @@ def change_password(request):
             context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
             return Response(status=status_code, data= context)
         
-        if not data["newPasswordConfirmation"] != data["newPassword"]:
+        if not data["newPasswordConfirmation"] == data["newPassword"]:
             context = None
             status_flag = False
             message = "New Password and New Confirmation Password are not Matching"

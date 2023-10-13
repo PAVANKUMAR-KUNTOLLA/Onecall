@@ -23,7 +23,7 @@ from onecall import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('users.urls')),
-     path('', include('api.urls')),
+     path('', include('tax_services.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-handler404 = 'api.views.serve_app'
+handler404 = 'tax_services.views.serve_app'
