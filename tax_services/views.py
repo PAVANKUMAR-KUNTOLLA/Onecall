@@ -32,36 +32,57 @@ def serve_app(request, exception):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def tax_filing(request):
+def my_services(request):
     data = request.data.copy()
     try:
         if request.method == "GET":
-            if "id" not in data.keys():
-                queryset = TaxFiling.objects.filter(user__id=request.user.id)
-                data = TaxFilingSerializer(queryset, many=True).data
-            else:
-                data = get_consolidated_data(data["id"])
+            queryset = TaxFiling.objects.filter(user__id=request.user.id)
+            data = TaxFilingSerializer(queryset, many=True).data
+            
             context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
         
         elif request.method == "POST":
-            if "id" not in data.keys() and data["new"]:
-                year = FinancialYear.objects.get(name=data["year"])
-                user = User.objects.get(id=request.user.id)
-                tax_filing = TaxFiling.objects.create(user=user, year=year)
-                tax_filing.save()
+            if "id" not in data.keys() and data["year"]:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Name of the Tax Year Service is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
-                queryset = TaxFiling.objects.filter(user__id=request.user.id)
-                data = TaxFilingSerializer(queryset, many=True).data
-                
-                context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":"created Successfully"}
-                return Response(status=status.HTTP_200_OK, data= context)
+            year = FinancialYear.objects.get(name=data["year"])
+            user = User.objects.get(id=request.user.id)
+            tax_filing = TaxFiling.objects.create(user=user, year=year)
+            tax_filing.save()
 
-
-            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            queryset = TaxFiling.objects.filter(user__id=request.user.id)
+            data = TaxFilingSerializer(queryset, many=True).data
+            
+            context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":"created Successfully"}
             return Response(status=status.HTTP_200_OK, data= context)
+        
         else:
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET & POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def tax_filing(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            if "id" not in data.keys():
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Tax Filing Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data=context)
+            
+            data = get_consolidated_data(data["id"])
+            context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+        
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
     except Exception as excepted_message:
         print(str(excepted_message))

@@ -13,4 +13,5 @@ urlpatterns = [
     path('api/v1/confirm_details/', confirm_details),
     path('api/v1/choice_data/', choice_data),
     path('api/v1/tax_years/', tax_years),
+    path('api/v1/my_services/', my_services),
 ]

@@ -99,7 +99,7 @@ class Bank(models.Model):
     ownership = models.CharField(max_length=255, choices=OWNERSHIP_CHOICES)
     routing_number = models.CharField(max_length=255)
     account_number = models.CharField(max_length=255)
-    account_type = models.CharField(max_length=255, null=True, blank=True)
+    account_type = models.CharField(max_length=255, null=True, blank=True, choices=BANK_ACCOUNT_TYPE)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey('users.User', on_delete=models.RESTRICT, editable=False)
