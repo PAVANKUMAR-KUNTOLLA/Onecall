@@ -14,6 +14,7 @@ from rest_framework import status
 from users.models import *
 from .models import *
 
+from .helpers import  get_consolidated_data
 from .serializers import TaxFilingSerializer, FinancialYearSerializer
 
 # Create your views here.
@@ -35,8 +36,11 @@ def tax_filing(request):
     data = request.data.copy()
     try:
         if request.method == "GET":
-            queryset = TaxFiling.objects.filter(user__id=request.user.id)
-            data = TaxFilingSerializer(queryset, many=True).data
+            if "id" not in data.keys():
+                queryset = TaxFiling.objects.filter(user__id=request.user.id)
+                data = TaxFilingSerializer(queryset, many=True).data
+            else:
+                data = get_consolidated_data(data["id"])
             context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
         
