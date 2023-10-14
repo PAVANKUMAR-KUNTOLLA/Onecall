@@ -14,7 +14,7 @@ from rest_framework import status
 from users.models import *
 from .models import *
 
-from .serializers import TaxFilingSerializer
+from .serializers import TaxFilingSerializer, FinancialYearSerializer
 
 # Create your views here.
 
@@ -71,6 +71,10 @@ def personal_contact_details(request):
     data = request.data.copy()
     try:
         if request.method == "GET":
+            if 'id' not in data.keys():
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Tax Filing Id is required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
         elif request.method == "POST":
@@ -204,6 +208,23 @@ def choice_data(request):
             data["paymentStatusChoices"] = [each[0] for each in PAYMENT_STATUS_CHOICES]
             data["filingStatusChoices"] = [each[0] for each in FILING_STATUS_CHOICES]
 
+            context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+    
+@api_view(['GET'])
+def tax_years(request):
+    data = request.data.copy()
+    try:
+        if request.method == "GET":
+            data = FinancialYear.objects.all()
+            data = FinancialYearSerializer(data, many=True).data
             context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
         else:
