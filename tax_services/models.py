@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 from crum import get_current_user
 from users.models import GENDER_CHOICES
 
@@ -98,7 +99,7 @@ class Dependant(models.Model):
 
 class Bank(models.Model):
     filing = models.ForeignKey("tax_services.TaxFiling", on_delete=models.CASCADE, null=True, blank=True, related_name="filer_tax_refund_account")
-    name = models.CharField(max_length=555, null=True, blank=True)
+    bank_name = models.CharField(max_length=555, null=True, blank=True)
     acc_holder_name = models.CharField(max_length=555, null=True, blank=True)
     ownership = models.CharField(max_length=255, choices=OWNERSHIP_CHOICES)
     routing_number = models.CharField(max_length=255)
@@ -110,11 +111,11 @@ class Bank(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        return f'Bank Account Details of {self.filing.name} for year {self.filing.year.start_date.strftime("%Y")}'
+        return f'Bank Account Details of {self.filing.user.email} for year {self.filing.year.start_date.strftime("%Y")}'
 
     @property
     def name(self):
-        return f'{self.first_name} {self.middle_name} {self.last_name}'
+        return f'{self.bank_name}'
 
     def save(self, *args, **kwargs):
         user = get_current_user()
@@ -123,7 +124,7 @@ class Bank(models.Model):
         super(Bank, self).save(*args, **kwargs)
 
 def get_file_path(instance, filename):
-    return f'TaxDocs/{instance.id}_{filename}'
+    return f'TaxDocs/U{instance.id}_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}_{filename}'
 
 class Appointment(models.Model):
     filing = models.ForeignKey("tax_services.TaxFiling", on_delete=models.CASCADE, null=True, blank=True)

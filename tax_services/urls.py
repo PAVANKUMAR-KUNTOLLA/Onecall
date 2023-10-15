@@ -10,8 +10,12 @@ urlpatterns = [
     path('api/v1/dependant_details/', dependant_details),
     path('api/v1/bank_details/', bank_details),
     path('api/v1/income_details/', income_details),
+    path('api/v1/upload_tax_docs/', upload_tax_docs),
     path('api/v1/confirm_details/', confirm_details),
     path('api/v1/choice_data/', choice_data),
     path('api/v1/tax_years/', tax_years),
     path('api/v1/my_services/', my_services),
+    path('api/v1/download_tax_docs/',download_tax_docs),
+    path('api/v1/delete_tax_docs/',delete_tax_docs),
+
 ]

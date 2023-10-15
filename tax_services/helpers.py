@@ -133,13 +133,13 @@ def get_consolidated_data(id):
     #//Bank Details
     if tax_filing_ins.bank:
         return_dict["bankDetails"]["bankingType"]= tax_filing_ins.refund_type
-        return_dict["bankDetails"]["bankName"]= tax_filing_ins.bank.name
+        return_dict["bankDetails"]["bankName"]= tax_filing_ins.bank.bank_name
         return_dict["bankDetails"]["accountHolderName"]= tax_filing_ins.bank.acc_holder_name
         return_dict["bankDetails"]["ownership"]= tax_filing_ins.bank.ownership
-        return_dict["bankDetails"]["routingNumber"]= tax_filing_ins.routing_number
-        return_dict["bankDetails"]["confirmRoutingNumber"]= tax_filing_ins.routing_number
+        return_dict["bankDetails"]["routingNumber"]= tax_filing_ins.bank.routing_number
+        return_dict["bankDetails"]["confirmRoutingNumber"]= tax_filing_ins.bank.routing_number
         return_dict["bankDetails"]["accountNumber"]= tax_filing_ins.bank.account_number
-        return_dict["bankDetails"]["confirmAccountNumber"]= tax_filing_ins.bank.acc_holder_name
+        return_dict["bankDetails"]["confirmAccountNumber"]= tax_filing_ins.bank.account_number
         return_dict["bankDetails"]["accountType"]= tax_filing_ins.bank.account_type
         return_dict["bankDetails"]["confirmAccountType"]=tax_filing_ins.bank.account_type
     else:

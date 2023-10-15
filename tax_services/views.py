@@ -3,9 +3,12 @@ import io
 import re
 import copy
 import datetime
+from os import listdir
 from django.db import transaction
 
+from django.core.files.storage import default_storage
 from django.shortcuts import render
+from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
@@ -14,6 +17,8 @@ from rest_framework import status
 
 from users.models import *
 from .models import *
+
+from onecall.settings import MEDIA_ROOT #, DEFAULT_FROM_EMAIL
 
 from .helpers import  get_consolidated_data
 from .serializers import TaxFilingSerializer, FinancialYearSerializer
@@ -367,22 +372,18 @@ def bank_details(request):
             user_ins = User.objects.get(id=request.user.id)
             print(data)
 
-            
-                # Create a new BankModel instance if validations pass
+            # Create a new BankModel instance if validations pass
             if not tax_filing_ins.bank and data["bankingType"] != "PAPER CHECK":
-                if(  data["bankName"]
-                    and data["accountHolderName"]
-                    and data["ownership"]
-                    and data["routingNumber"]
-                    and data["accountNumber"]
-                    and data["accountType"]
+                if(data["bankName"] and data["accountHolderName"]
+                    and data["ownership"] and data["routingNumber"]
+                    and data["accountNumber"] and data["accountType"]
                     and data["routingNumber"] == data["confirmRoutingNumber"]
                     and data["accountNumber"] == data["confirmAccountNumber"]
-                    and data["accountType"] == data["confirmAccountType"] 
+                    and data["accountType"] == data["confirmAccountType"]
                 ):
                     bank_ins = Bank.objects.create(
                         filing=tax_filing_ins,
-                        name=data["bankName"],
+                        bank_name=data["bankName"],
                         acc_holder_name=data["accountHolderName"],
                         ownership=data["ownership"],
                         routing_number=data["routingNumber"],
@@ -391,23 +392,24 @@ def bank_details(request):
                     )
                     bank_ins.save()
                     tax_filing_ins.bank = bank_ins
-                    tax_filing_ins.save()   
+                    tax_filing_ins.save()
+  
             elif tax_filing_ins.bank:
-                if data["bankName"] != tax_filing_ins.bank.name:
-                    tax_filing_ins.bank.name = data["bankName"]
+                if data["bankName"] != tax_filing_ins.bank.bank_name:
+                    tax_filing_ins.bank.bank_name = data["bankName"]
                 if data["accountHolderName"] != tax_filing_ins.bank.acc_holder_name:
                     tax_filing_ins.bank.acc_holder_name = data["accountHolderName"]
                 if data["ownership"] != tax_filing_ins.bank.ownership:
                     tax_filing_ins.bank.ownership = data["ownership"]
-                if data["routingNumber"] != tax_filing_ins.routing_number and data["routingNumber"] == data["confirmRoutingNumber"]:
-                    tax_filing_ins.routing_number = data["routingNumber"]
+                if data["routingNumber"] != tax_filing_ins.bank.routing_number and data["routingNumber"] == data["confirmRoutingNumber"]:
+                    tax_filing_ins.bank.routing_number = data["routingNumber"]
                 if data["accountNumber"] != tax_filing_ins.bank.account_number and data["accountNumber"] == data["confirmAccountNumber"]:
                     tax_filing_ins.bank.account_number = data["accountNumber"]
                 if data["accountType"] != tax_filing_ins.bank.account_type:
                     tax_filing_ins.bank.account_type = data["accountType"]
                 if data["confirmAccountType"] != tax_filing_ins.bank.account_type and data["accountType"] == data["confirmAccountType"]:
                     tax_filing_ins.bank.account_type = data["confirmAccountType"]
-
+                tax_filing_ins.bank.save()
             if tax_filing_ins.refund_type != data["bankingType"] and data["bankingType"]:
                 tax_filing_ins.refund_type = data["bankingType"]
                 tax_filing_ins.save()
@@ -508,6 +510,68 @@ def income_details(request):
         context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
         return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
+
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def upload_tax_docs(request):
+    data = request.data.copy()
+    try:
+        if request.method == "GET":
+            return_dict = list()
+
+            if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs"))):
+                
+                uploaded_files = listdir(os.path.join(MEDIA_ROOT, "TaxDocs"))
+                files_dict = dict()
+                # assigning each_file's creation date and time
+                for each_file in uploaded_files:
+                    files_dict.update({each_file:os.path.getctime(os.path.join(MEDIA_ROOT, "TaxDocs", each_file))})
+                
+                # Sorting the files in descending order
+                sorted_files_dict = dict(sorted(files_dict.items(), reverse=True, key=lambda x:x[1]))
+
+                for each_file, file_created_at in sorted_files_dict.items():
+                    if not each_file.startswith(f'U{request.user.id}_'):
+                        continue
+                    each_file_dict = {"file_name":each_file, "upload_time":None, "file_size":None}
+
+                    # Converting file created_at from datetime to str
+                    each_file_dict["upload_time"] = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
+                    
+                    # Reading the file size, by default size will be quantified in bytes
+                    file_size_in_bytes = os.path.getsize(os.path.join(MEDIA_ROOT, "TaxDocs", each_file))
+                    # Converting file size into KB and MB Format 
+                    each_file_dict["file_size"] = f'{round(file_size_in_bytes/1024, 2)} (KB)/{round(file_size_in_bytes/(1024*1024), 2)} (MB)'
+                
+                    return_dict.append( each_file_dict)
+            
+            context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+        
+        elif request.method == "POST":
+            if request.FILES:
+                # Access the uploaded file from request.FILES
+                uploaded_file = request.FILES['upload']
+                
+                tax_filing_ins = TaxFiling.objects.get(id=request.data["id"])
+                tax_filing_ins.tax_docs = uploaded_file
+                tax_filing_ins.save()
+                
+                context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Upload Done Successfully"}
+                return Response(status=status.HTTP_200_OK, data= context)
+            else:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Upload File is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+        
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET & POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -568,6 +632,79 @@ def tax_years(request):
             return Response(status=status.HTTP_200_OK, data= context)
         else:
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def download_tax_docs(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            file_name = data["file_name"]
+            if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs", file_name))):
+                # Reading the file that user has requested
+                with open(os.path.join(MEDIA_ROOT, "TaxDocs", file_name), 'rb') as f:
+                    file_data = f.read()
+
+                # Determine the file's content type based on the file extension
+                file_extension = os.path.splitext(file_name)[1].lower()
+
+                # Map file extensions to content types
+                content_types = {
+                    '.csv': 'text/csv',
+                    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    '.zip': 'application/zip',
+                    # Add more file types and content types as needed
+                }
+
+                # Default to application/octet-stream if the file extension is not recognized
+                content_type = content_types.get(file_extension, 'application/octet-stream')
+
+                response = HttpResponse(file_data, content_type=content_type)
+                response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+                return response
+            
+            else:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"No files Found with the requested name"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_tax_docs(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            file_name = data["file_name"]
+            if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs", file_name))):
+                os.remove(os.path.join(MEDIA_ROOT, "TaxDocs", file_name))
+                tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+                tax_filing_ins.tax_docs = None
+                tax_filing_ins.save()
+                
+                context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Deleted Successfully"}
+                return Response(status=status.HTTP_200_OK, data= context)
+            
+            else:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"No files Found with the requested name"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
     except Exception as excepted_message:
         print(str(excepted_message))
