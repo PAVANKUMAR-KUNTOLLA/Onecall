@@ -128,7 +128,7 @@ class Contact(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        return self.email
+        return self.user.email
 
     def save(self, *args, **kwargs):
         user = get_current_user()

@@ -15,6 +15,7 @@ def get_consolidated_data(id):
     return_dict["personalDetails"]["occupation"]= tax_filing_ins.user.job_title
     return_dict["personalDetails"]["residentialStatus"]= tax_filing_ins.user.residental_status
     return_dict["personalDetails"]["email"]= tax_filing_ins.user.email
+    return_dict["personalDetails"]["taxPayerStatus"]= tax_filing_ins.user.status
 
     #// Contact Details
     if tax_filing_ins.user.contact:
@@ -40,7 +41,7 @@ def get_consolidated_data(id):
         return_dict["contactDetails"]["primaryPhoneNumber"]= ""
         return_dict["contactDetails"]["secondaryCountryCode"]= ""
         return_dict["contactDetails"]["secondaryPhoneNumber"]= ""
-        return_dict["contactDetails"]["contactEmail"]= ""
+        return_dict["contactDetails"]["contactEmail"]= tax_filing_ins.user.email
 
     #//Income Details
     if tax_filing_ins.income:
@@ -76,7 +77,6 @@ def get_consolidated_data(id):
 
     #// additional Spouse Details (Initially hidden)
     if tax_filing_ins.user.status == "MARRIED":
-        return_dict["spouseDetails"]["taxPayerStatus"]= tax_filing_ins.user.status
         return_dict["spouseDetails"]["spouseFirstName"]= tax_filing_ins.user.spouse.first_name
         return_dict["spouseDetails"]["spouseMiddleInitial"]= tax_filing_ins.user.spouse.middle_name
         return_dict["spouseDetails"]["spouseLastName"]= tax_filing_ins.user.spouse.last_name
@@ -88,7 +88,6 @@ def get_consolidated_data(id):
         return_dict["spouseDetails"]["spouseResidentialStatus"]= tax_filing_ins.user.spouse.status
         return_dict["spouseDetails"]["spouseEmail"]= tax_filing_ins.user.spouse.email
     else:
-        return_dict["spouseDetails"]["taxPayerStatus"]= "SINGLE"
         return_dict["spouseDetails"]["spouseFirstName"]= ""
         return_dict["spouseDetails"]["spouseMiddleInitial"]= ""
         return_dict["spouseDetails"]["spouseLastName"]= ""

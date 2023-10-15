@@ -3,6 +3,7 @@ import io
 import re
 import copy
 import datetime
+from django.db import transaction
 
 from django.shortcuts import render
 from rest_framework.response import Response
@@ -104,93 +105,136 @@ def personal_contact_details(request):
             
             del data["id"]
 
-            for key, value in return_dict.items():
-                for sub_key, sub_value in value.items():
-                    if sub_value == "":
-                        return_dict[key][sub_key] = None
-            user_ins = User.objects.get(id=data["personDetails"]["userId"])
-            #// Personal Details
-            if user_ins.first_name !=  data["firstName"]:
-                user_ins.first_name = data["firstName"]
-            if user_ins.middle_name != data["middleName"]:
-                user_ins.middle_name = data["middleName"]
-            if user_ins.last_name !=  data["lastName"]:
-                user_ins.last_name =  data["lastName"]
-            if user_ins.ssn !=  data["ssn"]:
-                user_ins.ssn =  data["ssn"]
-            data["dateOfBirth"]= user_ins.dob
-            data["gender"]= user_ins.gender
-            data["occupation"]= user_ins.job_title
-            data["residentialStatus"]= user_ins.residental_status
+            for key, value in data.items():
+                if value == "":
+                    data[key] = None
+            user_ins = User.objects.get(id=request.user.id)
+            print(data)
+            with transaction.atomic():
+                #// Personal Details
+                if user_ins.first_name !=  data["firstName"]:
+                    user_ins.first_name = data["firstName"]
+                if user_ins.middle_name != data["middleName"]:
+                    user_ins.middle_name = data["middleName"]
+                if user_ins.last_name !=  data["lastName"]:
+                    user_ins.last_name =  data["lastName"]
+                if user_ins.ssn !=  data["ssn"]:
+                    user_ins.ssn =  data["ssn"]
+                if user_ins.dob  != data["dateOfBirth"]:
+                    user_ins.dob = datetime.datetime.strptime(data["dateOfBirth"], "%Y-%m-%d")
+                if user_ins.gender !=  data["gender"]:
+                    user_ins.gender =  data["gender"]
+                if user_ins.job_title != data["occupation"]:
+                    user_ins.job_title = data["occupation"]
+                if user_ins.residental_status != data["residentialStatus"]:
+                    user_ins.residental_status =  data["residentialStatus"]
+                if user_ins.status != data["taxPayerStatus"]:
+                    user_ins.status =  data["taxPayerStatus"]
+                
+                user_ins.save()
 
-            #// Contact Details
-            if user_ins.contact:
-                data["street"]= user_ins.contact.street
-                data["apartment"]=user_ins.contact.apartment_no
-                data["city"]= user_ins.contact.city
-                data["state"]= user_ins.contact.state
-                data["zipCode"]= user_ins.contact.zip_code
-                data["country"]= user_ins.contact.country
-                data["primaryCountryCode"]= user_ins.contact.primary_number_country_code
-                data["primaryPhoneNumber"]= user_ins.contact.primary_number
-                data["secondaryCountryCode"]= user_ins.contact.secondary_number_country_code
-                data["secondaryPhoneNumber"]= user_ins.contact.secondary_number
-                data["contactEmail"]= user_ins.email
+                #// Contact Details
+                if user_ins.contact or any([data[each] != None for each in ["street", "apartment","city","state","zipCode","country","primaryCountryCode","primaryPhoneNumber","secondaryCountryCode","secondaryPhoneNumber","contactEmail"]]):
+                    if not user_ins.contact:
+                        # If the contact object doesn't exist, create a new one
+                        contact_ins = Contact.objects.create( user=user_ins,
+                            street=data["street"],
+                            apartment_no=data["apartment"],
+                            city=data["city"],
+                            state=data["state"],
+                            zip_code=data["zipCode"],
+                            country=data["country"],
+                            primary_number_country_code=data["primaryCountryCode"],
+                            primary_number=data["primaryPhoneNumber"],
+                            secondary_number_country_code=data["secondaryCountryCode"],
+                            secondary_number=data["secondaryPhoneNumber"])
+                        
+                        contact_ins.save()
+                        user_ins.contact = contact_ins
+                        user_ins.save()
+                    else:
+                        contact_ins = Contact.objects.get(user__id=request.user.id)
+                        if contact_ins.street != data["street"]:
+                            contact_ins.street = data["street"]
+                        if contact_ins.apartment_no != data["apartment"]:
+                            contact_ins.apartment_no = data["apartment"]
+                        if contact_ins.city != data["city"]:
+                            contact_ins.city = data["city"]
+                        if contact_ins.state != data["state"]:
+                            contact_ins.state = data["state"]
+                        if contact_ins.zip_code != data["zipCode"]:
+                            contact_ins.zip_code = data["zipCode"]
+                        if contact_ins.country != data["country"]:
+                            contact_ins.country = data["country"]
+                        if contact_ins.primary_number_country_code != data["primaryCountryCode"]:
+                            contact_ins.primary_number_country_code = data["primaryCountryCode"]
+                        if contact_ins.primary_number != data["primaryPhoneNumber"]:
+                            contact_ins.primary_number = data["primaryPhoneNumber"]
+                        if contact_ins.secondary_number_country_code != data["secondaryCountryCode"]:
+                            contact_ins.secondary_number_country_code = data["secondaryCountryCode"]
+                        if contact_ins.secondary_number != data["secondaryPhoneNumber"]:
+                            contact_ins.secondary_number = data["secondaryPhoneNumber"]
 
-    
-            #// additional Spouse Details (Initially hidden)
-            if user_ins.status == "MARRIED":
-                data["taxPayerStatus"]= user_ins.status
-                data["spouseFirstName"]= user_ins.spouse.first_name
-                data["spouseMiddleInitial"]= user_ins.spouse.middle_name
-                data["spouseLastName"]= user_ins.spouse.last_name
-                data["spouseSsnOrItin"]= user_ins.spouse.ssn
-                data["applyForItin"]= False
-                data["spouseDateOfBirth"]= user_ins.spouse.dob
-                data["spouseGender"]= user_ins.spouse.gender
-                data["spouseOccupation"]= user_ins.spouse.job_title
-                data["spouseResidentialStatus"]= user_ins.spouse.status
-                data["spouseEmail"]= user_ins.spouse.email
-            else:
-                data["taxPayerStatus"]= "SINGLE"
-                data["spouseFirstName"]= ""
-                data["spouseMiddleInitial"]= ""
-                data["spouseLastName"]= ""
-                data["spouseSsnOrItin"]= ""
-                data["applyForItin"]= False #// Default to False
-                data["spouseDateOfBirth"]= ""
-                data["spouseGender"]= ""
-                data["spouseOccupation"]= ""
-                data["spouseResidentialStatus"]= ""
-                data["spouseEmail"]= ""
+                        contact_ins.save()
+                
+                if user_ins.status == "MARRIED"and user_ins.spouse or any([data[each] != None for each in["spouseFirstName", "spouseMiddleInitial", "spouseLastName", "spouseSsnOrItin", "spouseDateOfBirth", "spouseGender", "spouseOccupation", "spouseEmail"]]):
+                    if not user_ins.spouse:
+                        # If the contact object doesn't exist, create a new one
+                        spouse_ins = User.objects.create(
+                            first_name = data["spouseFirstName"],
+                            middle_name = data["spouseMiddleInitial"],
+                            last_name = data["spouseLastName"],
+                            ssn = data["spouseSsnOrItin"],
+                            dob = datetime.datetime.strptime(data["spouseDateOfBirth"], "%Y-%m-%d"),
+                            gender = data["spouseGender"],
+                            job_title = data["spouseOccupation"],
+                            residental_status = data["spouseResidentialStatus"],
+                            email = data["spouseEmail"],
+                            role="CLIENT",
+                            status="MARRIED",
+                            password="welcome")
+                        
+                        spouse_ins.save()
+                        user_ins.spouse = spouse_ins
+                        user_ins.save()
+                    else:
+                        spouse_ins = User.objects.get(id=request.user.spouse.id)
+                        if spouse_ins.first_name != data["spouseFirstName"]:
+                            spouse_ins.first_name = data["spouseFirstName"]
+                        if spouse_ins.middle_name != data["spouseMiddleInitial"]:
+                            spouse_ins.middle_name = data["spouseMiddleInitial"]
+                        if spouse_ins.last_name != data["spouseLastName"]:
+                            spouse_ins.last_name = data["spouseLastName"]
+                        if spouse_ins.ssn != data["spouseSsnOrItin"]:
+                            spouse_ins.ssn = data["spouseSsnOrItin"]
+                        # if data["applyForItin"] == False: 
+                        #     spouse_ins.applyForItin = False
+                        if spouse_ins.dob != data["spouseDateOfBirth"]:
+                            spouse_ins.dob = datetime.datetime.strptime(data["spouseDateOfBirth"], "%Y-%m-%d")
+                        if spouse_ins.gender != data["spouseGender"]:
+                            spouse_ins.gender = data["spouseGender"]
+                        if spouse_ins.job_title != data["spouseOccupation"]:
+                            spouse_ins.job_title = data["spouseOccupation"]
+                        if spouse_ins.status != data["spouseResidentialStatus"]:
+                            spouse_ins.status = data["spouseResidentialStatus"]
+                        if spouse_ins.email != data["spouseEmail"]:
+                            spouse_ins.email = data["spouseEmail"]
 
-            if tax_filing_ins.dependants and len(list(tax_filing_ins.dependants.all())) > 0:
-                dependants = tax_filing_ins.dependants.all()
-                for dependant_ins in dependants:
-                    data["providedLivingSupport"]= True
-                    data["additionalFirstName"]= dependant_ins.first_name
-                    data["additionalMiddleInitial"]= dependant_ins.middle_name
-                    data["additionalLastName"]= dependant_ins.last_name
-                    data["additionalSsnOrItin"]= dependant_ins.ssn
-                    data["applyForItin"]= False
-                    data["additionalDateOfBirth"]= dependant_ins.dob
-                    data["additionalGender"]= ""
-                    data["additionalOccupation"]= ""
-                    data["additionalResidentialStatus"]= ""
-                    data["additionalEmail"]= ""
-            else:
-                data["providedLivingSupport"]= False
-                data["additionalFirstName"]= ""
-                data["additionalMiddleInitial"]= ""
-                data["additionalLastName"]= ""
-                data["additionalSsnOrItin"]= ""
-                data["applyForItin"]= False #// Default to False
-                data[" additionalDateOfBirth"]= ""
-                data["additionalGender"]= ""
-                data["additionalOccupation"]= ""
-                data["additionalResidentialStatus"]= ""
-                data["additionalEmail"]= ""
-            
+                        spouse_ins.save() 
+                if tax_filing_ins.dependants and len(list(tax_filing_ins.dependants.all())) > 0 or any([data[each] != None for each in ["additionalFirstName", "additionaMiddleInitial", "additionalLasteName", "additionalSsnOrItin", "additionalDateOfBirth", "additionalResidentalStatus"]]):
+                    dependants = tax_filing_ins.dependants.all()
+                    for dependant_ins in dependants:
+                        data["providedLivingSupport"]= True
+                        data["additionalFirstName"]= dependant_ins.first_name
+                        data["additionalMiddleInitial"]= dependant_ins.middle_name
+                        data["additionalLastName"]= dependant_ins.last_name
+                        data["additionalSsnOrItin"]= dependant_ins.ssn
+                        data["applyForItin"]= False
+                        data["additionalDateOfBirth"]= dependant_ins.dob
+                        data["additionalGender"]= ""
+                        data["additionalOccupation"]= ""
+                        data["additionalResidentialStatus"]= ""
+                        data["additionalEmail"]= ""
 
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
@@ -343,7 +387,7 @@ def choice_data(request):
             data = dict()
             data["roleChoices"] = [each[0] for each in ROLE_CHOICES]
             data["genderChoices"] = [each[0] for each in GENDER_CHOICES]
-            data["residentalChoices"] = [each[0] for each in RESIDENTAL_STATUS_CHOICES]
+            data["residentalChoices"] = [each[0] for each in residental_status_CHOICES]
             data["maritalChoices"] = [each[0] for each in MARITAL_CHOICES]
             data["visaTypeChoices"] = [each[0] for each in VISA_TYPE_CHOICES]
             data["refundChoices"] = [each[0] for each in REFUND_CHOICES]
