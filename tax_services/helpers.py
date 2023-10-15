@@ -13,7 +13,7 @@ def get_consolidated_data(id):
     return_dict["personalDetails"]["dateOfBirth"]= tax_filing_ins.user.dob
     return_dict["personalDetails"]["gender"]= tax_filing_ins.user.gender
     return_dict["personalDetails"]["occupation"]= tax_filing_ins.user.job_title
-    return_dict["personalDetails"]["residentialStatus"]= tax_filing_ins.user.residental_status
+    return_dict["personalDetails"]["residentialStatus"]= tax_filing_ins.user.residential_status
     return_dict["personalDetails"]["email"]= tax_filing_ins.user.email
     return_dict["personalDetails"]["taxPayerStatus"]= tax_filing_ins.user.status
 
@@ -81,18 +81,18 @@ def get_consolidated_data(id):
         return_dict["spouseDetails"]["spouseMiddleInitial"]= tax_filing_ins.user.spouse.middle_name
         return_dict["spouseDetails"]["spouseLastName"]= tax_filing_ins.user.spouse.last_name
         return_dict["spouseDetails"]["spouseSsnOrItin"]= tax_filing_ins.user.spouse.ssn
-        return_dict["spouseDetails"]["applyForItin"]= False
+        return_dict["spouseDetails"]["spouseApplyForItin"]=tax_filing_ins.user.spouse.apply_for_itin
         return_dict["spouseDetails"]["spouseDateOfBirth"]= tax_filing_ins.user.spouse.dob
         return_dict["spouseDetails"]["spouseGender"]= tax_filing_ins.user.spouse.gender
         return_dict["spouseDetails"]["spouseOccupation"]= tax_filing_ins.user.spouse.job_title
-        return_dict["spouseDetails"]["spouseResidentialStatus"]= tax_filing_ins.user.spouse.status
+        return_dict["spouseDetails"]["spouseResidentialStatus"]= tax_filing_ins.user.spouse.residential_status
         return_dict["spouseDetails"]["spouseEmail"]= tax_filing_ins.user.spouse.email
     else:
         return_dict["spouseDetails"]["spouseFirstName"]= ""
         return_dict["spouseDetails"]["spouseMiddleInitial"]= ""
         return_dict["spouseDetails"]["spouseLastName"]= ""
         return_dict["spouseDetails"]["spouseSsnOrItin"]= ""
-        return_dict["spouseDetails"]["applyForItin"]= False #// Default to False
+        return_dict["spouseDetails"]["spouseApplyForItin"]= False #// Default to False
         return_dict["spouseDetails"]["spouseDateOfBirth"]= ""
         return_dict["spouseDetails"]["spouseGender"]= ""
         return_dict["spouseDetails"]["spouseOccupation"]= ""
@@ -107,29 +107,33 @@ def get_consolidated_data(id):
             return_dict["dependantDetails"]["additionalMiddleInitial"]= dependant_ins.middle_name
             return_dict["dependantDetails"]["additionalLastName"]= dependant_ins.last_name
             return_dict["dependantDetails"]["additionalSsnOrItin"]= dependant_ins.ssn
-            return_dict["dependantDetails"]["applyForItin"]= False
+            return_dict["dependantDetails"]["additionalApplyForItin"]= dependant_ins.apply_for_itin
             return_dict["dependantDetails"]["additionalDateOfBirth"]= dependant_ins.dob
-            return_dict["dependantDetails"]["additionalGender"]= ""
-            return_dict["dependantDetails"]["additionalOccupation"]= ""
-            return_dict["dependantDetails"]["additionalResidentialStatus"]= ""
-            return_dict["dependantDetails"]["additionalEmail"]= ""
+            return_dict["dependantDetails"]["additionalGender"]= dependant_ins.gender
+            return_dict["dependantDetails"]["additionalOccupation"]= dependant_ins.job_title
+            return_dict["dependantDetails"]["additionalVisaType"]= dependant_ins.visa_type
+            return_dict["dependantDetails"]["additionalEmail"]= dependant_ins.email
+            return_dict["dependantDetails"]["additionalRelationship"]= dependant_ins.relationship
+            return_dict["dependantDetails"]["additionalStayCount"]= dependant_ins.stay_period
     else:
         return_dict["dependantDetails"]["providedLivingSupport"]= False
         return_dict["dependantDetails"]["additionalFirstName"]= ""
         return_dict["dependantDetails"]["additionalMiddleInitial"]= ""
         return_dict["dependantDetails"]["additionalLastName"]= ""
         return_dict["dependantDetails"]["additionalSsnOrItin"]= ""
-        return_dict["dependantDetails"]["applyForItin"]= False #// Default to False
-        return_dict["dependantDetails"][" additionalDateOfBirth"]= ""
+        return_dict["dependantDetails"]["additionalApplyForItin"]= False #// Default to False
+        return_dict["dependantDetails"]["additionalDateOfBirth"]= ""
         return_dict["dependantDetails"]["additionalGender"]= ""
         return_dict["dependantDetails"]["additionalOccupation"]= ""
-        return_dict["dependantDetails"]["additionalResidentialStatus"]= ""
+        return_dict["dependantDetails"]["additionalVisaType"]= ""
         return_dict["dependantDetails"]["additionalEmail"]= ""
+        return_dict["dependantDetails"]["additionalRelationship"]= ""
+        return_dict["dependantDetails"]["additionalStayCount"]= ""
     
     #//Bank Details
     if tax_filing_ins.bank:
-        return_dict["bankDetails"]["bankingType"]= tax_filing_ins.bank.service_type
-        return_dict["bankDetails"][" bankName"]= tax_filing_ins.bank.name
+        return_dict["bankDetails"]["bankingType"]= tax_filing_ins.refund_type
+        return_dict["bankDetails"]["bankName"]= tax_filing_ins.bank.name
         return_dict["bankDetails"]["accountHolderName"]= tax_filing_ins.bank.acc_holder_name
         return_dict["bankDetails"]["ownership"]= tax_filing_ins.bank.ownership
         return_dict["bankDetails"]["routingNumber"]= tax_filing_ins.routing_number
@@ -139,8 +143,8 @@ def get_consolidated_data(id):
         return_dict["bankDetails"]["accountType"]= tax_filing_ins.bank.account_type
         return_dict["bankDetails"]["confirmAccountType"]=tax_filing_ins.bank.account_type
     else:
-        return_dict["bankDetails"]["bankingType"]= ""
-        return_dict["bankDetails"][" bankName"]= ""
+        return_dict["bankDetails"]["bankingType"]= tax_filing_ins.refund_type if tax_filing_ins.refund_type else ""
+        return_dict["bankDetails"]["bankName"]= ""
         return_dict["bankDetails"]["accountHolderName"]= ""
         return_dict["bankDetails"]["ownership"]= ""
         return_dict["bankDetails"]["routingNumber"]= ""

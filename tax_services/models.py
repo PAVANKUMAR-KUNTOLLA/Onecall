@@ -1,5 +1,6 @@
 from django.db import models
 from crum import get_current_user
+from users.models import GENDER_CHOICES
 
 VISA_TYPE_CHOICES = [("H4", "H4"), ("US Citizen", "US Citizen"), ("L2", "L2"), ("Green Card", "Green Card"), ("Other", "Other")]
 REFUND_CHOICES = [("DIRECT DEPOSIT INTO MY BANK ACCOUNT", "DIRECT DEPOSIT INTO MY BANK ACCOUNT"), ("PAPER CHECK", "PAPER CHECK")]
@@ -54,7 +55,7 @@ class Income(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        return f'Income Details of {self.filing.name} for year {self.filing.year.start_date.strftime("%Y")}'
+        return f'Income Details of {self.filing.user.email} for year {self.filing.year.start_date.strftime("%Y")}'
 
     def save(self, *args, **kwargs):
         user = get_current_user()
@@ -67,20 +68,23 @@ class Dependant(models.Model):
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255)
-    dob = models.DateField()
+    dob = models.DateField(null=True, blank=True)
     relationship = models.CharField(max_length=255)
-    country_of_stay = models.CharField(max_length=255)
+    country_of_stay = models.CharField(max_length=255, null=True, blank=True)
     stay_period = models.IntegerField(default=0)
     visa_type = models.CharField(max_length=255, choices=VISA_TYPE_CHOICES)
     ssn = models.CharField(max_length=255, null=True, blank=True)
-    itin = models.CharField(max_length=255, null=True, blank=True)
+    email = models.CharField(max_length=255, null=True, blank=True)
+    gender = models.CharField(max_length=255, choices=GENDER_CHOICES)
+    apply_for_itin = models.BooleanField(default=False)
+    job_title = models.CharField(max_length=555, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey('users.User', on_delete=models.RESTRICT, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        return f'{self.first_name} {self.middle_name} {self.last_name}'
+        return f'{self.email}'
 
     @property
     def name(self):

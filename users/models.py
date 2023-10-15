@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 
 ROLE_CHOICES = [("CLIENT", "CLIENT"), ("ADMIN", "ADMIN"), ("CUSTOMER SERVICE", "CUSTOMER_SERVICE")]
 GENDER_CHOICES=[("MALE", "MALE"), ("FEMALE", "FEMALE"), ("Other", "Other")]
-RESIDENTAL_STATUS_CHOICES = [("VISA", "VISA"), ("CITIZENSHIP", "CITIZENSHIP")]
+residential_STATUS_CHOICES = [("VISA", "VISA"), ("CITIZENSHIP", "CITIZENSHIP")]
 MARITAL_CHOICES = [("SINGLE", "SINGLE"), ("MARRIED", "MARRIED")]
 
 class UserManager(BaseUserManager):
@@ -49,11 +49,12 @@ class User(AbstractUser):
     ssn = models.CharField(unique=True, max_length=255, null=True, blank=True)
     gender = models.CharField(max_length=255, choices=GENDER_CHOICES)
     job_title = models.CharField(max_length=555, null=True, blank=True)
-    residental_status = models.CharField(max_length=255, choices=RESIDENTAL_STATUS_CHOICES, null=True, blank=True)
+    residential_status = models.CharField(max_length=255, choices=residential_STATUS_CHOICES, null=True, blank=True)
     status = models.CharField(max_length=255, choices=MARITAL_CHOICES, null=True, blank=True)
     spouse = models.ForeignKey("users.User", on_delete=models.RESTRICT, null=True, blank=True, related_name="partner")
     contact = models.ForeignKey("users.Contact", on_delete=models.CASCADE, blank=True, null=True, related_name="contact_info")
     tax_filings = models.ManyToManyField("tax_services.TaxFiling", related_name="filings")
+    apply_for_itin = models.BooleanField(default=False)
     referred_by = models.ForeignKey("self", on_delete=models.RESTRICT, null=True, blank=True)
     
     updated_at = models.DateTimeField(auto_now=True, editable=False)
