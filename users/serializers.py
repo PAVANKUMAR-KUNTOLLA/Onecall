@@ -8,7 +8,9 @@ from users.models import User
 class SignupSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
-    name = serializers.CharField(required=True)
+    firstName = serializers.CharField(required=True)
+    lastName = serializers.CharField(required=True)
+    gender = serializers.CharField(required=True)
     referralId = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     def validate_email(self, email):
@@ -23,12 +25,14 @@ class SignupSerializer(serializers.Serializer):
         return str(email).strip().lower()
 
     def save(self):
-        name = self.validated_data['name']
+        first_name = self.validated_data['firstName']
+        last_name = self.validated_data['lastName']
+        gender = self.validated_data['gender']
         email = self.validated_data['email']
         password = self.validated_data['password']
         referralId = self.validated_data['referralId']
 
-        user = User.objects.create(name=name, email=email)
+        user = User.objects.create(first_name=first_name,last_name=last_name,gender=gender,email=email)
         user.is_active = True
         user.set_password(password)
         if referralId != None and  referralId != "" and "octs" in referralId and referralId.isalnum() and User.objects.filter(id=referralId.split("octs")[1]).exists() :
@@ -63,6 +67,20 @@ class AuthenticationSerializer(serializers.Serializer):
         return attrs
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    phone_no = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ('id', 'name', 'email')
+        fields = ('id', 'first_name', "last_name", "gender", 'email', "phone_no", "address")
+        
+    def get_phone_no(self, instance):
+        if instance.contact:
+            return instance.contact.primary_number
+        else:
+            return ""
+    def get_address(self, instance):
+        if instance.contact:
+            return instance.contact.street
+        else:
+            return ""
