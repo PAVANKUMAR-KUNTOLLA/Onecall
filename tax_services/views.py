@@ -511,45 +511,13 @@ def income_details(request):
         return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def upload_tax_docs(request):
     data = request.data.copy()
     try:
-        if request.method == "GET":
-            return_dict = list()
-
-            if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs"))):
-                
-                uploaded_files = listdir(os.path.join(MEDIA_ROOT, "TaxDocs"))
-                files_dict = dict()
-                # assigning each_file's creation date and time
-                for each_file in uploaded_files:
-                    files_dict.update({each_file:os.path.getctime(os.path.join(MEDIA_ROOT, "TaxDocs", each_file))})
-                
-                # Sorting the files in descending order
-                sorted_files_dict = dict(sorted(files_dict.items(), reverse=True, key=lambda x:x[1]))
-
-                for each_file, file_created_at in sorted_files_dict.items():
-                    if not each_file.startswith(f'U{request.user.id}_'):
-                        continue
-                    each_file_dict = {"file_name":each_file, "upload_time":None, "file_size":None}
-
-                    # Converting file created_at from datetime to str
-                    each_file_dict["upload_time"] = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
-                    
-                    # Reading the file size, by default size will be quantified in bytes
-                    file_size_in_bytes = os.path.getsize(os.path.join(MEDIA_ROOT, "TaxDocs", each_file))
-                    # Converting file size into KB and MB Format 
-                    each_file_dict["file_size"] = f'{round(file_size_in_bytes/1024, 2)} (KB)/{round(file_size_in_bytes/(1024*1024), 2)} (MB)'
-                
-                    return_dict.append( each_file_dict)
-            
-            context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
-            return Response(status=status.HTTP_200_OK, data= context)
-        
-        elif request.method == "POST":
+        if request.method == "POST":
             if request.FILES:
                 # Access the uploaded file from request.FILES
                 uploaded_file = request.FILES['upload']
@@ -561,8 +529,36 @@ def upload_tax_docs(request):
                 context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Upload Done Successfully"}
                 return Response(status=status.HTTP_200_OK, data= context)
             else:
-                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Upload File is Required"}
-                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+                return_dict = list()
+
+                if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs"))):
+                    
+                    uploaded_files = listdir(os.path.join(MEDIA_ROOT, "TaxDocs"))
+                    files_dict = dict()
+                    # assigning each_file's creation date and time
+                    for each_file in uploaded_files:
+                        files_dict.update({each_file:os.path.getctime(os.path.join(MEDIA_ROOT, "TaxDocs", each_file))})
+                    
+                    # Sorting the files in descending order
+                    sorted_files_dict = dict(sorted(files_dict.items(), reverse=True, key=lambda x:x[1]))
+
+                    for each_file, file_created_at in sorted_files_dict.items():
+                        if not each_file.startswith(f'U{data["id"]}_'):
+                            continue
+                        each_file_dict = {"file_name":each_file, "upload_time":None, "file_size":None}
+
+                        # Converting file created_at from datetime to str
+                        each_file_dict["upload_time"] = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
+                        
+                        # Reading the file size, by default size will be quantified in bytes
+                        file_size_in_bytes = os.path.getsize(os.path.join(MEDIA_ROOT, "TaxDocs", each_file))
+                        # Converting file size into KB and MB Format 
+                        each_file_dict["file_size"] = f'{round(file_size_in_bytes/1024, 2)} (KB)/{round(file_size_in_bytes/(1024*1024), 2)} (MB)'
+                    
+                        return_dict.append( each_file_dict)
+                    
+                    context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+                    return Response(status=status.HTTP_200_OK, data= context)
         
         else:
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET & POST Method Available"}
