@@ -21,7 +21,8 @@ from .models import *
 from onecall.settings import MEDIA_ROOT #, DEFAULT_FROM_EMAIL
 
 from .helpers import  get_consolidated_data
-from .serializers import TaxFilingSerializer, FinancialYearSerializer
+from users.serializers import UserProfileSerializer
+from .serializers import TaxFilingSerializer, FinancialYearSerializer,AppointmentSerializer,ReferalSerializer
 
 # Create your views here.
 
@@ -105,8 +106,8 @@ def personal_contact_details(request):
     data = request.data.copy()
     try:
         if request.method == "POST":
-            if 'id' not in data.keys():
-                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Tax Filing Id is required"}
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
             print(data)
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
@@ -204,9 +205,8 @@ def personal_contact_details(request):
                                 email = data["spouseEmail"],
                                 apply_for_itin=data["spouseApplyForItin"],
                                 role="CLIENT",
-                                status="MARRIED",
-                                password="welcome")
-                        
+                                status="MARRIED")
+                            spouse_ins.set_password="welcome"
                             spouse_ins.save()
                         user_ins.spouse = spouse_ins
                         user_ins.save()
@@ -357,6 +357,10 @@ def bank_details(request):
     try:
         if request.method == "POST":
 
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
             
             del data["id"]
@@ -432,6 +436,11 @@ def income_details(request):
     try:
         if request.method == "POST":
             #//Income Details
+
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
             
             del data["id"]
@@ -518,6 +527,11 @@ def upload_tax_docs(request):
     data = request.data.copy()
     try:
         if request.method == "POST":
+
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
             if request.FILES:
                 # Access the uploaded file from request.FILES
                 uploaded_file = request.FILES['upload']
@@ -686,7 +700,13 @@ def delete_tax_docs(request):
     data = request.data.copy()
     try:
         if request.method == "POST":
+            
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
             file_name = data["file_name"]
+           
             if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs", file_name))):
                 os.remove(os.path.join(MEDIA_ROOT, "TaxDocs", file_name))
                 tax_filing_ins = TaxFiling.objects.get(id=data["id"])
@@ -699,6 +719,154 @@ def delete_tax_docs(request):
             else:
                 context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"No files Found with the requested name"}
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def appointment_details(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+            queryset = tax_filing_ins.appointments.all().order_by("-created_at")
+            data = AppointmentSerializer(queryset, many=True).data
+                
+            context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+            
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def book_appointment(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            print(data)
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+            start_time = datetime.datetime.strptime(data["date"], "%Y-%m-%d")
+            hours = int(data["time"].split(":")[0])
+            minutes = data["time"].split(":")[1]
+            minutes = int(minutes.replace("0", "",1)) if minutes.startswith("0") else int(minutes)
+            print(hours, minutes)
+            start_time = start_time + datetime.timedelta(hours=hours, minutes=minutes)
+            end_time = start_time + datetime.timedelta(minutes=30)
+            appointment_ins = Appointment.objects.create(filing=tax_filing_ins, start_time=start_time, end_time=end_time, time_zone=data["timezone"])
+            appointment_ins.save()
+            tax_filing_ins.appointments.add(appointment_ins.id)
+            tax_filing_ins.save()
+            
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Appointment Booked successfully"}
+            return Response(status=status.HTTP_200_OK, data= context)
+            
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_appointment(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            if "appointmentId" not in data.keys() or data["appointmentId"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Appointment Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+           
+            appointment_ins = Appointment.objects.get(id=data["appointmentId"])
+            appointment_ins.status="CANCELLED"
+            appointment_ins.save()
+            
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Deleted Successfully"}
+            return Response(status=status.HTTP_200_OK, data= context)
+            
+           
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def referal_details(request):
+    data = request.data.copy()
+    try:
+        if request.method == "GET":
+            return_dict={"joined":list(),"not_joined":list()}
+            referals = User.objects.filter(referred_by__id=request.user.id).order_by("-created_at")
+            return_dict["joined"] = UserProfileSerializer(referals, many=True).data
+
+            referals = Referal.objects.filter(referred_by=request.user.id).order_by("-created_at")
+            for each in referals:
+                if not User.objects.filter(email=each.email, referred_by__email=request.user.email):
+                    referal_data = ReferalSerializer(each).data
+                    return_dict["not_joined"].append(referal_data)
+                
+            context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+            
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def make_referal(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            print(data)
+           
+            user_ins = User.objects.get(id=request.user.id)
+            referal_ins = Referal.objects.create(referred_by=user_ins, first_name=data["firstName"],  last_name=data["lastName"],  email=data["email"], contact_no=data["contact"])
+            referal_ins.save()
+            
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Referal successfull"}
+            return Response(status=status.HTTP_200_OK, data= context)
+            
         else:
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)

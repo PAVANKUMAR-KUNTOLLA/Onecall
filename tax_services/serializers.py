@@ -26,3 +26,35 @@ class FinancialYearSerializer(serializers.ModelSerializer):
         return instance.start_date.strftime("%Y-%m-%d")
     def get_end_date(self, instance):
         return instance.end_date.strftime("%Y-%m-%d")
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    filing = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+    start_time = serializers.SerializerMethodField()
+    end_time = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Appointment
+        fields = ("id", "filing", "date", "start_time", "end_time", "status")
+    
+    def get_filing(self, instance):
+        return instance.filing.user.email
+    def get_date(self, instance):
+        return instance.start_time.strftime("%d %b %Y")
+    def get_start_time(self, instance):
+        return instance.start_time.strftime("%H:%M:%S")
+    def get_end_time(self, instance):
+        return instance.end_time.strftime("%H:%M:%S")
+
+class ReferalSerializer(serializers.ModelSerializer):
+    referred_by = serializers.SerializerMethodField()
+    class Meta:
+        model = Referal
+        fields = ('id', 'first_name', "last_name", 'email', "contact_no",  "referred_by")
+
+    def get_referred_by(self, instance):
+        if instance.referred_by:
+            return instance.referred_by.email
+        else:
+            return ""
+   

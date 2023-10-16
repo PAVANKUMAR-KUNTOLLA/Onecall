@@ -69,10 +69,12 @@ class AuthenticationSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     phone_no = serializers.SerializerMethodField()
     address = serializers.SerializerMethodField()
-    
+    referred_by = serializers.SerializerMethodField()
+    referral_id = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'first_name', "last_name", "gender", 'email', "phone_no", "address")
+        fields = ('id', 'first_name', "last_name", "gender", 'email', "phone_no", "address", "referred_by", "referral_id")
         
     def get_phone_no(self, instance):
         if instance.contact:
@@ -82,5 +84,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_address(self, instance):
         if instance.contact:
             return instance.contact.street
+        else:
+            return ""
+    def get_referred_by(self, instance):
+        if instance.referred_by:
+            return instance.referred_by.email
+        else:
+            return ""
+    def get_referral_id(self, instance):
+        if instance.referred_by:
+            return instance.referred_by.referral_id
         else:
             return ""

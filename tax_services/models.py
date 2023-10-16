@@ -138,7 +138,7 @@ class Appointment(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        return f'Appointment for {self.filing.name} on {start_time.strftime("%Y-%m-%d")}'
+        return f'Appointment for {self.filing.user.email} on {self.start_time.strftime("%Y-%m-%d")}'
 
     def save(self, *args, **kwargs):
         user = get_current_user()

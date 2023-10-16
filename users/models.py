@@ -55,9 +55,10 @@ class User(AbstractUser):
     contact = models.ForeignKey("users.Contact", on_delete=models.CASCADE, blank=True, null=True, related_name="contact_info")
     tax_filings = models.ManyToManyField("tax_services.TaxFiling", related_name="filings")
     apply_for_itin = models.BooleanField(default=False)
-    referred_by = models.ForeignKey("self", on_delete=models.RESTRICT, null=True, blank=True)
+    referred_by = models.ForeignKey("self", on_delete=models.RESTRICT, null=True, blank=True, editable=False)
     
     updated_at = models.DateTimeField(auto_now=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
     account_terminated = models.BooleanField(default=False, editable=False)
 
     objects = UserManager()
