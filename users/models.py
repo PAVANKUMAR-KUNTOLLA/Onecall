@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 
 ROLE_CHOICES = [("CLIENT", "CLIENT"), ("ADMIN", "ADMIN"), ("CUSTOMER SERVICE", "CUSTOMER_SERVICE")]
 GENDER_CHOICES=[("MALE", "MALE"), ("FEMALE", "FEMALE"), ("Other", "Other")]
-residential_STATUS_CHOICES = [("VISA", "VISA"), ("CITIZENSHIP", "CITIZENSHIP")]
+RESIDENTIAL_STATUS_CHOICES = [("H4", "H4"), ("US Citizen", "US Citizen"), ("L2", "L2"), ("Green Card", "Green Card"), ("Other", "Other")]
 MARITAL_CHOICES = [("SINGLE", "SINGLE"), ("MARRIED", "MARRIED")]
 
 class UserManager(BaseUserManager):
@@ -49,7 +49,7 @@ class User(AbstractUser):
     ssn = models.CharField(unique=True, max_length=255, null=True, blank=True)
     gender = models.CharField(max_length=255, choices=GENDER_CHOICES)
     job_title = models.CharField(max_length=555, null=True, blank=True)
-    residential_status = models.CharField(max_length=255, choices=residential_STATUS_CHOICES, null=True, blank=True)
+    residential_status = models.CharField(max_length=255, choices=RESIDENTIAL_STATUS_CHOICES, null=True, blank=True)
     status = models.CharField(max_length=255, choices=MARITAL_CHOICES, null=True, blank=True)
     spouse = models.ForeignKey("users.User", on_delete=models.RESTRICT, null=True, blank=True, related_name="partner")
     contact = models.ForeignKey("users.Contact", on_delete=models.CASCADE, blank=True, null=True, related_name="contact_info")
