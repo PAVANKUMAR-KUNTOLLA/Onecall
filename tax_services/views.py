@@ -5,7 +5,7 @@ import copy
 import datetime
 from os import listdir
 from django.db import transaction
-
+import pytz 
 from django.core.files.storage import default_storage
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -235,8 +235,35 @@ def personal_contact_details(request):
 
                         spouse_ins.save() 
             
-                if len(tax_filing_ins.dependants.all()) > 0 or any([data[each] !=None and data[each] !=False for each in ["additionalFirstName", "additionalMiddleInitial", "additionalLastName", "additionalSsnOrItin", "additionalDateOfBirth", "additionalGender", "additionalOccupation", "additionalEmail", "additionalApplyForItin", "additionalStayCount", "additionalRelationship", "additionalVisaType"]]):
-                    if len(tax_filing_ins.dependants.all()) == 0:
+                if data["isNewDependant"] : #or any([data[each] !=None and data[each] !=False for each in ["additionalFirstName", "additionalMiddleInitial", "additionalLastName", "additionalSsnOrItin", "additionalDateOfBirth", "additionalGender", "additionalOccupation", "additionalEmail", "additionalApplyForItin", "additionalStayCount", "additionalRelationship", "additionalVisaType"]])
+                    if Dependant.objects.filter(filing__id=tax_filing_ins.id, ssn=data["additionalSsnOrItin"]).exists():
+                        dependant_ins = Dependant.objects.get(filing__id=tax_filing_ins.id, ssn=data["additionalSsnOrItin"])
+                        if dependant_ins.first_name != data["additionalFirstName"]:
+                            dependant_ins.first_name = data["additionalFirstName"]
+                        if dependant_ins.middle_name != data["additionalMiddleInitial"]:
+                            dependant_ins.middle_name = data["additionalMiddleInitial"]
+                        if dependant_ins.last_name != data["additionalLastName"]:
+                            dependant_ins.last_name = data["additionalLastName"]
+                        if dependant_ins.ssn != data["additionalSsnOrItin"]:
+                            dependant_ins.ssn = data["additionalSsnOrItin"]
+                        if dependant_ins.dob != data["additionalDateOfBirth"]:
+                            dependant_ins.dob = datetime.datetime.strptime(data["additionalDateOfBirth"], "%Y-%m-%d")
+                        if dependant_ins.gender != data["additionalGender"]:
+                            dependant_ins.gender = data["additionalGender"]
+                        if dependant_ins.job_title != data["additionalOccupation"]:
+                            dependant_ins.job_title = data["additionalOccupation"]
+                        if dependant_ins.email != data["additionalEmail"]:
+                            dependant_ins.email = data["additionalEmail"]
+                        if dependant_ins.apply_for_itin != data["additionalApplyForItin"]:
+                            dependant_ins.apply_for_itin = data["additionalApplyForItin"]
+                        if dependant_ins.relationship != data["additionalRelationship"]:
+                            dependant_ins.relationship =data["additionalRelationship"]
+                        if dependant_ins.stay_period != data["additionalStayCount"]:
+                            dependant_ins.stay_period = data["additionalStayCount"]
+                        if dependant_ins.visa_type != data["additionalVisaType"]:
+                            dependant_ins.visa_type = data["additionalVisaType"]    
+                        dependant_ins.save()
+                    else:
                         dependant_ins = Dependant.objects.create(
                                 filing=tax_filing_ins,
                                 first_name=data["additionalFirstName"],
@@ -252,42 +279,14 @@ def personal_contact_details(request):
                                 stay_period=data["additionalStayCount"],
                                 visa_type=data["additionalVisaType"]
                             )
-                        dependant_ins.save()
-                        tax_filing_ins.dependants.add(dependant_ins.id)
-                        tax_filing_ins.save()
-
-                    else:
-                        dependants = tax_filing_ins.dependants.all()
-                        for dependant_ins in dependants:
-                            if dependant_ins.first_name != data["additionalFirstName"]:
-                                dependant_ins.first_name = data["additionalFirstName"]
-                            if dependant_ins.middle_name != data["additionalMiddleInitial"]:
-                                dependant_ins.middle_name = data["additionalMiddleInitial"]
-                            if dependant_ins.last_name != data["additionalLastName"]:
-                                dependant_ins.last_name = data["additionalLastName"]
-                            if dependant_ins.ssn != data["additionalSsnOrItin"]:
-                                dependant_ins.ssn = data["additionalSsnOrItin"]
-                            if dependant_ins.dob != data["additionalDateOfBirth"]:
-                                dependant_ins.dob = datetime.datetime.strptime(data["additionalDateOfBirth"], "%Y-%m-%d")
-                            if dependant_ins.gender != data["additionalGender"]:
-                                dependant_ins.gender = data["additionalGender"]
-                            if dependant_ins.job_title != data["additionalOccupation"]:
-                                dependant_ins.job_title = data["additionalOccupation"]
-                            if dependant_ins.email != data["additionalEmail"]:
-                                dependant_ins.email = data["additionalEmail"]
-                            if dependant_ins.apply_for_itin != data["additionalApplyForItin"]:
-                                dependant_ins.apply_for_itin = data["additionalApplyForItin"]
-                            if dependant_ins.relationship != data["additionalRelationship"]:
-                                dependant_ins.relationship =data["additionalRelationship"]
-                            if dependant_ins.stay_period != data["additionalStayCount"]:
-                                dependant_ins.stay_period = data["additionalStayCount"]
-                            if dependant_ins.visa_type != data["additionalVisaType"]:
-                                dependant_ins.visa_type = data["additionalVisaType"]    
-                            dependant_ins.save()
-                
+                    dependant_ins.save()
+                    tax_filing_ins.dependants.add(dependant_ins.id)
+                    tax_filing_ins.save()
+        
                 if tax_filing_ins.income:
-                    if data["taxFiledLastYear"] is not None and data["taxFiledLastYear"] != income_ins.filed_taxes_last_year:
-                                income_ins.filed_taxes_last_year = data["taxFiledLastYear"]
+                    if data["taxFiledLastYear"] is not None and data["taxFiledLastYear"] != tax_filing_ins.income.filed_taxes_last_year:
+                            tax_filing_ins.income.filed_taxes_last_year = data["taxFiledLastYear"]
+                            tax_filing_ins.income.save()
                     else:
                         if data["taxFiledLastYear"]:
                             tax_filed_last_year = True if data["taxFiledLastYear"] == "true" or data["taxFiledLastYear"] == True else False
@@ -295,8 +294,8 @@ def personal_contact_details(request):
                                 filing=tax_filing_ins,filed_taxes_last_year=tax_filed_last_year
                             )
                             income_ins.save()
-                            tax_filing_ins.income = income_ins.id
-                            tax_filing_ins.save()    
+                            tax_filing_ins.income = income_ins
+                            tax_filing_ins.save()
 
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
@@ -329,20 +328,77 @@ def spouse_details(request):
         context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
         return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def dependant_details(request):
     data = request.data.copy()
     try:
-        if request.method == "GET":
-            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+        if request.method == "POST":
+
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+            return_dict = list()
+            dependants = tax_filing_ins.dependants.all()
+            each_dict = dict()
+            for dependant_ins in dependants:
+                each_dict["id"] = dependant_ins.id
+                each_dict["additionalFirstName"]= dependant_ins.first_name
+                each_dict["additionalMiddleInitial"]= dependant_ins.middle_name
+                each_dict["additionalLastName"]= dependant_ins.last_name
+                each_dict["additionalSsnOrItin"]= dependant_ins.ssn
+                each_dict["additionalApplyForItin"]= dependant_ins.apply_for_itin
+                each_dict["additionalDateOfBirth"]= dependant_ins.dob
+                each_dict["additionalGender"]= dependant_ins.gender
+                each_dict["additionalOccupation"]= dependant_ins.job_title
+                each_dict["additionalVisaType"]= dependant_ins.visa_type
+                each_dict["additionalEmail"]= dependant_ins.email
+                each_dict["additionalRelationship"]= dependant_ins.relationship
+                each_dict["additionalStayCount"]= dependant_ins.stay_period
+
+                return_dict.append(each_dict)
+
+            context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
-        elif request.method == "POST":
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_dependant(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+
+            if "taxFilingId" not in data.keys() or data["taxFilingId"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Dependant Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            tax_filing_ins = TaxFiling.objects.get(id=data["taxFilingId"])
+            dependant_ins = Dependant.objects.get(id=data["id"])
+            tax_filing_ins.dependants.remove(dependant_ins.id)
+            tax_filing_ins.save()
+            
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Deleted Successfully"}
+            return Response(status=status.HTTP_200_OK, data= context)
+
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
         else:
-            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET & POST Method Available"}
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
     except Exception as excepted_message:
         print(str(excepted_message))
@@ -767,17 +823,27 @@ def book_appointment(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
-            start_time = datetime.datetime.strptime(data["date"], "%Y-%m-%d")
-            hours = int(data["time"].split(":")[0])
-            minutes = data["time"].split(":")[1]
-            minutes = int(minutes.replace("0", "",1)) if minutes.startswith("0") else int(minutes)
-            print(hours, minutes)
-            start_time = start_time + datetime.timedelta(hours=hours, minutes=minutes)
-            end_time = start_time + datetime.timedelta(minutes=30)
-            appointment_ins = Appointment.objects.create(filing=tax_filing_ins, start_time=start_time, end_time=end_time, time_zone=data["timezone"])
+            start_date = data["date"]
+            start_time = data["time"]
+
+            # Parse the start time and date
+            start_datetime = datetime.datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+
+            # Calculate the end time by adding 30 minutes
+            end_datetime = start_datetime + datetime.timedelta(minutes=30)
+
+            # Create aware datetimes with the specified time zone
+            start_datetime_aware = pytz.timezone(data["timezone"]).localize(start_datetime)
+            end_datetime_aware = pytz.timezone(data["timezone"]).localize(end_datetime)
+
+            # Create and save the appointment
+            appointment_ins = Appointment.objects.create(filing=tax_filing_ins, start_time=start_datetime_aware, end_time=end_datetime_aware, time_zone=data["timezone"])
             appointment_ins.save()
+
+            # Update the tax_filing_ins with the appointment
             tax_filing_ins.appointments.add(appointment_ins.id)
             tax_filing_ins.save()
+
             
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Appointment Booked successfully"}
             return Response(status=status.HTTP_200_OK, data= context)

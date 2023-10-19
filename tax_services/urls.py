@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/v1/personal_contact_details/', personal_contact_details),
     path('api/v1/spouse_details/', spouse_details),
     path('api/v1/dependant_details/', dependant_details),
+    path('api/v1/delete_dependant/', delete_dependant),
     path('api/v1/bank_details/', bank_details),
     path('api/v1/income_details/', income_details),
     path('api/v1/upload_tax_docs/', upload_tax_docs),

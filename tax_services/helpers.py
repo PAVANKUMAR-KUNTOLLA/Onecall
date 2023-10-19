@@ -1,7 +1,7 @@
 from .models import *
 
 def get_consolidated_data(id):
-    return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{}, "bankDetails":{}, "dependantDetails":{}, "spouseDetails":{}}
+    return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{}, "bankDetails":{}, "dependantDetails":list(), "spouseDetails":{}}
     tax_filing_ins = TaxFiling.objects.get(id=id)
 
     #// Personal Details
@@ -100,35 +100,9 @@ def get_consolidated_data(id):
         return_dict["spouseDetails"]["spouseEmail"]= ""
 
     if tax_filing_ins.dependants and len(list(tax_filing_ins.dependants.all())) > 0:
-        dependants = tax_filing_ins.dependants.all()
-        for dependant_ins in dependants:
-            return_dict["dependantDetails"]["providedLivingSupport"]= True
-            return_dict["dependantDetails"]["additionalFirstName"]= dependant_ins.first_name
-            return_dict["dependantDetails"]["additionalMiddleInitial"]= dependant_ins.middle_name
-            return_dict["dependantDetails"]["additionalLastName"]= dependant_ins.last_name
-            return_dict["dependantDetails"]["additionalSsnOrItin"]= dependant_ins.ssn
-            return_dict["dependantDetails"]["additionalApplyForItin"]= dependant_ins.apply_for_itin
-            return_dict["dependantDetails"]["additionalDateOfBirth"]= dependant_ins.dob
-            return_dict["dependantDetails"]["additionalGender"]= dependant_ins.gender
-            return_dict["dependantDetails"]["additionalOccupation"]= dependant_ins.job_title
-            return_dict["dependantDetails"]["additionalVisaType"]= dependant_ins.visa_type
-            return_dict["dependantDetails"]["additionalEmail"]= dependant_ins.email
-            return_dict["dependantDetails"]["additionalRelationship"]= dependant_ins.relationship
-            return_dict["dependantDetails"]["additionalStayCount"]= dependant_ins.stay_period
+        return_dict["providedLivingSupport"] = True
     else:
-        return_dict["dependantDetails"]["providedLivingSupport"]= False
-        return_dict["dependantDetails"]["additionalFirstName"]= ""
-        return_dict["dependantDetails"]["additionalMiddleInitial"]= ""
-        return_dict["dependantDetails"]["additionalLastName"]= ""
-        return_dict["dependantDetails"]["additionalSsnOrItin"]= ""
-        return_dict["dependantDetails"]["additionalApplyForItin"]= False #// Default to False
-        return_dict["dependantDetails"]["additionalDateOfBirth"]= ""
-        return_dict["dependantDetails"]["additionalGender"]= ""
-        return_dict["dependantDetails"]["additionalOccupation"]= ""
-        return_dict["dependantDetails"]["additionalVisaType"]= ""
-        return_dict["dependantDetails"]["additionalEmail"]= ""
-        return_dict["dependantDetails"]["additionalRelationship"]= ""
-        return_dict["dependantDetails"]["additionalStayCount"]= ""
+        return_dict["providedLivingSupport"]= False
     
     #//Bank Details
     if tax_filing_ins.bank:
@@ -155,6 +129,8 @@ def get_consolidated_data(id):
         return_dict["bankDetails"]["confirmAccountType"]= ""
     
     for key, value in return_dict.items():
+        if key in ["providedLivingSupport", "dependantDetails"]:
+            continue
         for sub_key, sub_value in value.items():
             if (sub_value == None) and (not sub_value == False):
                 return_dict[key][sub_key] = ''
