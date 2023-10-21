@@ -23,60 +23,68 @@
     <!-- CSS STYLES -->
     <link
       rel="stylesheet"
-      href="{% static 'static_assets/css/vendors/bootstrap.css' %}"
+      href="{% static 'website_assets/css/vendors/bootstrap.css' %}"
       type="text/css"
       media="all"
     />
     <link
       rel="stylesheet"
-      href="{% static 'static_assets/fonts/font-awesome/css/font-awesome.css' %}"
+      href="{% static 'website_assets/fonts/font-awesome/css/font-awesome.css' %}"
       type="text/css"
       media="all"
     />
     <link
       rel="stylesheet"
-      href="{% static 'static_assets/css/vendors/magnific-popup.css' %}"
+      href="{% static 'website_assets/css/vendors/magnific-popup.css' %}"
       type="text/css"
       media="all"
     />
     <link
       rel="stylesheet"
-      href="{% static 'static_assets/css/vendors/splitting.css' %}"
+      href="{% static 'website_assets/css/vendors/splitting.css' %}"
       type="text/css"
       media="all"
     />
     <link
       rel="stylesheet"
-      href="{% static 'static_assets/css/vendors/swiper.css' %}"
+      href="{% static 'website_assets/css/vendors/swiper.css' %}"
       type="text/css"
       media="all"
     />
     <link
       rel="stylesheet"
-      href="{% static 'static_assets/css/vendors/animate.css' %}"
+      href="{% static 'website_assets/css/vendors/animate.css' %}"
       type="text/css"
       media="all"
     />
     <link
       rel="stylesheet"
-      href="{% static 'static_assets/css/vendors/jquery.pagepiling.css' %}"
+      href="{% static 'website_assets/css/vendors/jquery.pagepiling.css' %}"
       type="text/css"
       media="all"
     />
     <link
       rel="stylesheet"
-      href="{% static 'static_assets/css/style.css' %}"
+      href="{% static 'website_assets/css/style.css' %}"
       type="text/css"
       media="all"
     />
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{% static '/img/favicon.ico" type="image/x-icon" />
-    <link rel="icon" href="{% static '/img/favicon.ico' %}" type="image/x-icon" />
+    <link
+      rel="shortcut icon"
+      href="{% static '/img/favicon.ico"
+      type="image/x-icon"
+    />
+    <link
+      rel="icon"
+      href="{% static '/img/favicon.ico' %}"
+      type="image/x-icon"
+    />
   </head>
   <body>
     <!-- Page -->
-    <div class="onecall-page footer--fixed">
+    <div class="onecall-page footer--fixed" id="Home">
       <!-- Preloader -->
       <div class="preloader">
         <div class="preloader__spinner">
@@ -88,56 +96,92 @@
       </div>
 
       <!-- Header -->
-      <header
-        class="onecall-header header--white"
-        style="
-          background-image: url('{% static "static_assets/images/header.png" %}');
-          background-size: 100% 100%;
-        "
-      >
+      <header class="onecall-header header--white onecall-background-image">
         <div class="header--builder">
           <div class="container">
-            <div class="row">
+            <div class="row justify-content-between">
               <div
                 class="col-4 col-xs-4 col-sm-4 col-md-4 col-lg-3 align-self-center"
               >
                 <!-- Logo -->
-                <div class="onecall-logo-image">
+                <div
+                  class="onecall-logo-image hide-on-menu-open"
+                  style="margin-right: 100px"
+                >
                   <a href="index.html">
                     <img
-                      src="{% static 'static_assets/images/logo-black.png' %}"
+                      src="{% static 'website_assets/images/logo-black.png' %}"
                       alt="onecall"
                     />
                     <img
-                      class="logo--white logo"
-                      src="{% static 'static_assets/images/onecall-logo.png' %}"
+                      class="logo--white"
+                      src="{% static 'website_assets/images/onecall-logo.png' %}"
                       alt="Onecall"
+                      style="
+                        max-width: 120px;
+                        max-height: 42px;
+                        margin-left: auto;
+                      "
                     />
                   </a>
                 </div>
               </div>
+
               <div
-                class="col-4 col-xs-4 col-sm-4 col-md-4 col-lg-6 align-self-center align-center"
+                class="col-8 col-xs-8 col-sm-8 col-md-8 col-lg-6 align-self-center align-center"
               >
                 <!-- Menu Hamburger -->
-                <a href="#" class="onecall-menu-btn"><span></span></a>
-                <div class="onecall-menu-popup align-left">
-                  <div class="onecall-menu-overlay"></div>
-                  <div class="onecall-menu-overlay-after"></div>
-                  <div class="onecall-menu-container onecall--noscroll">
-                    <div class="container">
-                      <div class="onecall-menu">
-                        <ul class="onecall-menu-nav">
-                          <li
-                            class="dropdown-link current-menu-item menu-item-has-children"
-                          >
-                            <a
-                              class="onecall-lnk lnk--active onecall-dropdown-toggle"
-                              href="index.html"
-                              >Home</a
+                <div
+                  style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                  "
+                  class="appbar_end"
+                >
+                  <div
+                    class="col-4 col-xs-4 col-sm-4 col-md-4 col-lg-3 align-self-center align-right hide-on-menu-open login-btn"
+                    style="margin-left: auto; margin-right: 50px"
+                  >
+                    <!-- Button -->
+                    <a class="onecall-head-btn onecall-hover-btn" href="#">
+                      <!--<span>
+											<span class="onecall-lnk lnk--active">Login</span>
+										</span> -->
+
+                      <a
+                        class="onecall-btn btn--border btn--white btn--color onecall-hover-btn"
+                        href="/app/profile/"
+                        target="_blank"
+                        style="color: #000000"
+                      >
+                        <span> Login </span>
+                      </a>
+                    </a>
+                  </div>
+                  <a
+                    href="#"
+                    class="onecall-menu-btn toggle-btn"
+                    style="display: block !important; margin-top: 10px"
+                    ><span></span
+                  ></a>
+                  <div class="onecall-menu-popup align-left">
+                    <div class="onecall-menu-overlay"></div>
+                    <div class="onecall-menu-overlay-after"></div>
+                    <div class="onecall-menu-container onecall--noscroll">
+                      <div class="container">
+                        <div class="onecall-menu">
+                          <ul class="onecall-menu-nav">
+                            <li
+                              class="dropdown-link current-menu-item menu-item-has-children"
                             >
-                            <i class="icon fas fa-chevron-down"></i>
-                            <!-- <ul class="sub-menu">
+                              <a
+                                class="onecall-lnk lnk--active onecall-dropdown-toggle"
+                                href="#about-section"
+                                >About</a
+                              >
+                              <i class="icon fas fa-chevron-down"></i>
+                              <!-- <ul class="sub-menu">
 														<li class="current-menu-item">
 															<a class="onecall-lnk lnk--active" href="index.html">Creative Agency</a>
 														</li>
@@ -151,15 +195,15 @@
 															<a class="onecall-lnk lnk--active" href="home-parallax.html">Fullscreen Parallax</a>
 														</li>
 													</ul> -->
-                          </li>
-                          <li class="dropdown-link menu-item-has-children">
-                            <a
-                              class="onecall-lnk lnk--active onecall-dropdown-toggle"
-                              href="about-us.html"
-                              >About</a
-                            >
-                            <i class="icon fas fa-chevron-down"></i>
-                            <!-- <ul class="sub-menu">
+                            </li>
+                            <li class="dropdown-link menu-item-has-children">
+                              <a
+                                class="onecall-lnk lnk--active onecall-dropdown-toggle"
+                                href="#services-section"
+                                >Services</a
+                              >
+                              <i class="icon fas fa-chevron-down"></i>
+                              <!-- <ul class="sub-menu">
 														<li>
 															<a class="onecall-lnk lnk--active" href="about-us.html">About Us</a>
 														</li>
@@ -182,17 +226,17 @@
 															<a class="onecall-lnk lnk--active" href="faq.html">FAQ</a>
 														</li>
 													</ul> -->
-                          </li>
-                          <li class="dropdown-link menu-item-has-children">
-                            <a
-                              class="onecall-lnk lnk--active onecall-dropdown-toggle"
-                              href="#"
-                              >Projects</a
-                            >
-                            <i class="icon fas fa-chevron-down"></i>
-                            <!-- <ul class="sub-menu">
+                            </li>
+                            <li class="dropdown-link menu-item-has-children">
+                              <a
+                                class="onecall-lnk lnk--active onecall-dropdown-toggle"
+                                href="#team-section"
+                                >Team</a
+                              >
+                              <i class="icon fas fa-chevron-down"></i>
+                              <!-- <ul class="sub-menu">
 														<li>
-															<a class="onecall-lnk lnk--active" href="#">Projects Grid</a>
+															<a class="onecall-lnk lnk--active" href="projects.html">Projects Grid</a>
 														</li>
 														<li>
 															<a class="onecall-lnk lnk--active" href="projects-list.html">Projects List</a>
@@ -213,15 +257,15 @@
 															<a class="onecall-lnk lnk--active" href="project-detail.html">Project Detail</a>
 														</li>
 													</ul> -->
-                          </li>
-                          <li class="dropdown-link menu-item-has-children">
-                            <a
-                              class="onecall-lnk lnk--active onecall-dropdown-toggle"
-                              href="blog.html"
-                              >Login</a
-                            >
-                            <i class="icon fas fa-chevron-down"></i>
-                            <!-- <ul class="sub-menu">
+                            </li>
+                            <li class="dropdown-link menu-item-has-children">
+                              <a
+                                class="onecall-lnk lnk--active onecall-dropdown-toggle"
+                                href="#reviews-section"
+                                >Reviews</a
+                              >
+                              <i class="icon fas fa-chevron-down"></i>
+                              <!-- <ul class="sub-menu">
 														<li>
 															<a class="onecall-lnk lnk--active" href="blog.html">Blog Grid</a>
 														</li>
@@ -232,36 +276,21 @@
 															<a class="onecall-lnk lnk--active" href="blog-detail.html">Blog Detail</a>
 														</li>
 													</ul> -->
-                          </li>
-                          <li>
-                            <a
-                              class="onecall-lnk lnk--active"
-                              href="contact-us.html"
-                              >Contact Us</a
-                            >
-                          </li>
-                        </ul>
+                            </li>
+                            <li>
+                              <a
+                                class="onecall-lnk lnk--active"
+                                href="#contact-section"
+                                >Contact Us</a
+                              >
+                              <i class="icon fas fa-chevron-down"></i>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="col-4 col-xs-4 col-sm-4 col-md-4 col-lg-3 align-self-center align-right"
-              >
-                <!-- Button -->
-                <a class="onecall-head-btn onecall-hover-btn" href="http://127.0.0.1:8000/app/home/">
-                  <!--<span>
-									<span class="onecall-lnk lnk--active">Login</span>
-								</span> -->
-
-                  <a
-                    class="onecall-btn btn--border btn--white btn--color onecall-hover-btn login-white-theme"
-                    href="http://127.0.0.1:8000/app/home/"
-                  >
-                    <span > Login </span>
-                  </a>
-                </a>
               </div>
             </div>
           </div>
@@ -284,11 +313,11 @@
                   <div class="image video">
                     <video autoplay muted loop playsinline>
                       <source
-                        src="{% static 'static_assets/images/ad1.mp4' %}"
+                        src="{% static 'website_assets/videos/ad1.mp4' %}"
                         type="video/mp4"
                       />
                     </video>
-                    <div class="ovrl"></div>
+                    <div class="ovrl" style="opacity: 0.95"></div>
                   </div>
                   <div class="container">
                     <div class="titles">
@@ -305,7 +334,6 @@
                         <div class="onecall-bts">
                           <a
                             class="onecall-btn btn--border btn--white btn--color onecall-hover-btn"
-                            href="#"
                           >
                             <span> Click Here </span>
                           </a>
@@ -322,11 +350,11 @@
                   <div class="image video">
                     <video autoplay muted loop playsinline>
                       <source
-                        src="{% static 'static_assets/images/ad2.mp4' %}"
+                        src="{% static 'website_assets/videos/ad2.mp4' %}"
                         type="video/mp4"
                       />
                     </video>
-                    <div class="ovrl"></div>
+                    <div class="ovrl" style="opacity: 0.95"></div>
                   </div>
                   <div class="container">
                     <div class="titles">
@@ -343,7 +371,6 @@
                         <div class="onecall-bts">
                           <a
                             class="onecall-btn btn--border btn--white btn--color onecall-hover-btn"
-                            href="#"
                           >
                             <span> Join now </span>
                           </a>
@@ -355,37 +382,30 @@
               </div>
 
               <!--slide-->
-              <div class="swiper-slide" data-swiper-autoplay>
-                <div class="onecall-hero-slide-item">
-                  <div
-                    class="image"
-                    data-dimg="{% static 'static_assets/images/refer.jpg' %}"
-                    data-mimg="{% static 'static_assets/images/refer.jpg' %}"
-                  >
-                    <div class="ovrl"></div>
-                  </div>
-                  <div class="container">
-                    <div class="titles">
-                      <h1 class="title onecall-text-white">
-                        <span data-splitting></span>
-                      </h1>
-                      <div class="text">
-                        <div class="subtitle onecall-text-white subtitle--left">
-                          <div data-splitting></div>
-                        </div>
-                        <div class="onecall-bts">
-                          <a
-                            class="onecall-btn btn--border btn--white btn--color onecall-hover-btn"
-                            href="services.html"
-                          >
-                            <span> Know More </span>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <!-- <div class="swiper-slide" data-swiper-autoplay>
+							<div class="onecall-hero-slide-item">
+								<div class="image refer-image" data-dimg="/static/website_assets/images/banner_image.jpg">
+									<div class="ovrl" style="opacity: 0.95;"></div>
+								</div>
+								<div class="container">
+									<div class="titles">
+										<h1 class="title onecall-text-white">
+											<span data-splitting></span>
+										</h1>
+										<div class="text">
+											<div class="subtitle onecall-text-white subtitle--left">
+												<div data-splitting>  </div>
+											</div>
+											<div class="onecall-bts">
+												<a class="onecall-btn btn--border btn--white btn--color onecall-hover-btn">
+													<span> Refer a Friend </span>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div> -->
             </div>
 
             <!--navs-->
@@ -408,7 +428,10 @@
         </section>
 
         <!-- onecall About -->
-        <section class="onecall-section gap-top-60 gap-bottom-100">
+        <section
+          class="onecall-section gap-top-60 gap-bottom-100"
+          id="about-section"
+        >
           <div class="container">
             <div class="row">
               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
@@ -439,12 +462,12 @@
                     <!-- Number -->
                     <div class="onecall-number onecall-circle-text mrg-left">
                       <div class="num onecall-text-white">
-                        <span> 14 </span>
+                        <span> 1 </span>
                       </div>
                       <div
                         class="label onecall-text-black onecall-circle-text-label"
                       >
-                        Years of Digital Solutions Experience
+                        ONE CALL TAX SERVICES WE MAKE TAX SIMPLER
                       </div>
                     </div>
                   </div>
@@ -476,7 +499,7 @@
                         financial decisions and achieve their financial goals.
                       </strong>
                     </p>
-                    <a class="onecall-btn onecall-hover-btn" href="about-us.html">
+                    <a class="onecall-btn onecall-hover-btn">
                       <i class="arrow"><span></span></i>
                       <span> More About Us </span>
                     </a>
@@ -489,10 +512,12 @@
                 <!-- Number -->
                 <div class="onecall-number onecall-circle-text mrg-right">
                   <div class="num onecall-text-white">
-                    <span> 14 </span>
+                    <span> 1 </span>
                   </div>
-                  <div class="label onecall-text-black onecall-circle-text-label">
-                    Years of Digital Solutions Experience
+                  <div
+                    class="label onecall-text-black onecall-circle-text-label"
+                  >
+                    ONE CALL TAX SERVICES WE MAKE TAX SIMPLER
                   </div>
                 </div>
               </div>
@@ -512,7 +537,7 @@
                 <!--slide-->
                 <div class="swiper-slide">
                   <h5 class="title onecall-text-white">
-                    <a href="service-detail.html">
+                    <a href="#">
                       <span> - Individual Tax Services </span>
                     </a>
                   </h5>
@@ -521,7 +546,7 @@
                 <!--slide-->
                 <div class="swiper-slide">
                   <h5 class="title onecall-text-white">
-                    <a href="service-detail.html">
+                    <a href="#">
                       <span> - Business Tax Services </span>
                     </a>
                   </h5>
@@ -530,7 +555,7 @@
                 <!--slide-->
                 <div class="swiper-slide">
                   <h5 class="title onecall-text-white">
-                    <a href="service-detail.html">
+                    <a href="#">
                       <span> - Tax Planning and Consulting </span>
                     </a>
                   </h5>
@@ -539,7 +564,7 @@
                 <!--slide-->
                 <div class="swiper-slide">
                   <h5 class="title onecall-text-white">
-                    <a href="service-detail.html">
+                    <a href="#">
                       <span> - ITIN Applications/Renewal </span>
                     </a>
                   </h5>
@@ -548,7 +573,7 @@
                 <!--slide-->
                 <div class="swiper-slide">
                   <h5 class="title onecall-text-white">
-                    <a href="service-detail.html">
+                    <a href="#">
                       <span> - IRS Problem Resolution </span>
                     </a>
                   </h5>
@@ -559,7 +584,9 @@
         </section>
         <!-- onecall Services -->
         <section
-          class="onecall-section onecall-section-bg gap-top-60 gap-bottom-140 onecall-section-mb"
+          class="onecall-section onecall-section-bg gap-top-60 gap-bottom-140"
+          style="margin-bottom: 100px"
+          id="services-section"
         >
           <div class="container">
             <div class="row">
@@ -573,7 +600,7 @@
               </div>
             </div>
 
-            Services Showcase
+            <!-- Services Showcase -->
             <div class="onecall-services-showcase">
               <div class="row">
                 <div class="col-xs-0 col-sm-0 col-md-0 col-lg-7"></div>
@@ -589,39 +616,33 @@
                       <!--item-->
                       <li>
                         <div class="image">
-                            <span
-                                class="img individual-tax"
-                            >
-                            </span>
+                          <span class="img individual-background-image"></span>
                         </div>
                         <h5 class="title">
-                            <a href="service-detail.html">
-                                <span class="num">
-                                    <span data-splitting data-onecall-scroll>
-                                        01.
-                                    </span>
+                          <a href="#">
+                            <span class="num">
+                              <span data-splitting data-onecall-scroll>
+                                01.
+                              </span>
+                            </span>
+                            <span class="name">
+                              <span class="onecall-lnk">
+                                <span data-splitting data-onecall-scroll>
+                                  Individual Tax Services
                                 </span>
-                                <span class="name">
-                                    <span class="onecall-lnk">
-                                        <span data-splitting data-onecall-scroll>
-                                            Individual Tax Services
-                                        </span>
-                                    </span>
-                                </span>
-                            </a>
+                              </span>
+                            </span>
+                          </a>
                         </h5>
-                    </li>
-                    
+                      </li>
 
                       <!--item-->
                       <li>
                         <div class="image">
-                          <span
-                            class="img itin-application"
-                          ></span>
+                          <span class="img itin-background-image"></span>
                         </div>
                         <h5 class="title">
-                          <a href="service-detail.html">
+                          <a href="#">
                             <span class="num">
                               <span data-splitting data-onecall-scroll>
                                 02.
@@ -641,13 +662,10 @@
                       <!--item-->
                       <li>
                         <div class="image">
-                          <span
-                            class="img taxplanning-consulting"
-                           
-                          ></span>
+                          <span class="img taxplanning-background-image"></span>
                         </div>
                         <h5 class="title">
-                          <a href="service-detail.html">
+                          <a href="#">
                             <span class="num">
                               <span data-splitting data-onecall-scroll>
                                 03.
@@ -668,13 +686,11 @@
                       <li>
                         <div class="image">
                           <span
-                            class="img business-tax-services"
-                         
-                          >
-                            </span>
+                            class="img businesss-tax-background-image"
+                          ></span>
                         </div>
                         <h5 class="title">
-                          <a href="service-detail.html">
+                          <a href="#">
                             <span class="num">
                               <span data-splitting data-onecall-scroll>
                                 04.
@@ -694,13 +710,10 @@
                       <!--item-->
                       <li>
                         <div class="image">
-                          <span
-                            class="img irs-problem-resolution"
-                            
-                          ></span>
+                          <span class="img irs-background-image"></span>
                         </div>
                         <h5 class="title">
-                          <a href="service-detail.html">
+                          <a href="#">
                             <span class="num">
                               <span data-splitting data-onecall-scroll>
                                 05.
@@ -720,10 +733,7 @@
                   </div>
 
                   <!-- Button -->
-                  <a
-                    href="services.html"
-                    class="onecall-btn onecall-hover-btn btn--border"
-                  >
+                  <a class="onecall-btn onecall-hover-btn btn--border">
                     <i class="arrow">
                       <span></span>
                     </i>
@@ -783,10 +793,13 @@
         </section>
 
         <!-- onecall Team -->
-        <section class="onecall-section gap-top-140 gap-bottom-140">
+        <section class="onecall-section gap-top-140 gap-bottom-50">
           <div class="container">
             <!-- Heading -->
-            <div class="onecall-heading align-center gap-bottom-40">
+            <div
+              class="onecall-heading align-center gap-bottom-40"
+              id="team-section"
+            >
               <div class="onecall-subtitle-1">
                 <span> Experts Team Members </span>
               </div>
@@ -799,11 +812,18 @@
             <div class="row gap-row">
               <!--team item-->
               <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                <div class="onecall-team" data-onecall-overlay data-onecall-scroll>
-                  <div class="onecall-team-item onecall-hover-3">
+                <div
+                  class="onecall-team"
+                  data-onecall-overlay
+                  data-onecall-scroll
+                >
+                  <div
+                    class="onecall-team-item onecall-hover-3"
+                    style="height: 500px"
+                  >
                     <div class="desc">
                       <h5 class="title">
-                        <a href="team-detail.html" class="onecall-lnk">
+                        <a href="#" class="onecall-lnk">
                           <span data-splitting data-onecall-scroll>
                             Walter White
                           </span>
@@ -819,7 +839,7 @@
                           <li>
                             <a
                               class="onecall-social-link onecall-hover-2"
-                              href="facebook.com"
+                              href="#"
                               title="Fa"
                               target="_blank"
                             >
@@ -832,7 +852,7 @@
                           <li>
                             <a
                               class="onecall-social-link onecall-hover-2"
-                              href="linkedin.com"
+                              href="#"
                               title="In"
                               target="_blank"
                             >
@@ -845,17 +865,11 @@
                         </ul>
                       </div>
                     </div>
-                    <div class="image">
-                      <a href="team-detail.html">
-                        <img
-                          decoding="async"
-                          src="{% static 'static_assets/images/team-2-t-min.png' %}"
-                          width="350"
-                          height="530"
-                          alt="Walter White"
-                        />
-                      </a>
-                    </div>
+                    <!-- <div class="image">
+										<a href="team-detail.html">
+											<img decoding="async" src="{% static 'website_assets/images/team-2-t-min.png' %}" width="350" height="530" alt="Walter White" />
+										</a>
+									</div> -->
                     <div class="num onecall-text-white">
                       <span> W </span>
                     </div>
@@ -865,11 +879,18 @@
 
               <!--team item-->
               <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                <div class="onecall-team" data-onecall-overlay data-onecall-scroll>
-                  <div class="onecall-team-item onecall-hover-3">
+                <div
+                  class="onecall-team"
+                  data-onecall-overlay
+                  data-onecall-scroll
+                >
+                  <div
+                    class="onecall-team-item onecall-hover-3"
+                    style="height: 500px"
+                  >
                     <div class="desc">
                       <h5 class="title">
-                        <a href="team-detail.html" class="onecall-lnk">
+                        <a href="#" class="onecall-lnk">
                           <span data-splitting data-onecall-scroll>
                             Sarah Jhonson
                           </span>
@@ -885,7 +906,7 @@
                           <li>
                             <a
                               class="onecall-social-link onecall-hover-2"
-                              href="facebook.com"
+                              href="#"
                               title="Fa"
                               target="_blank"
                             >
@@ -898,7 +919,7 @@
                           <li>
                             <a
                               class="onecall-social-link onecall-hover-2"
-                              href="linkedin.com"
+                              href="#"
                               title="In"
                               target="_blank"
                             >
@@ -911,17 +932,11 @@
                         </ul>
                       </div>
                     </div>
-                    <div class="image">
-                      <a href="team-detail.html">
-                        <img
-                          decoding="async"
-                          src="{% static 'static_assets/images/team-6-t-min.png' %}"
-                          width="350"
-                          height="530"
-                          alt="Sarah Jhonson"
-                        />
-                      </a>
-                    </div>
+                    <!-- <div class="image">
+										<a href="team-detail.html">
+											<img decoding="async" src="{% static 'website_assets/images/team-6-t-min.png' %}" width="350" height="530" alt="Sarah Jhonson" />
+										</a>
+									</div> -->
                     <div class="num onecall-text-white">
                       <span> S </span>
                     </div>
@@ -931,11 +946,18 @@
 
               <!--team item-->
               <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                <div class="onecall-team" data-onecall-overlay data-onecall-scroll>
-                  <div class="onecall-team-item onecall-hover-3">
+                <div
+                  class="onecall-team"
+                  data-onecall-overlay
+                  data-onecall-scroll
+                >
+                  <div
+                    class="onecall-team-item onecall-hover-3"
+                    style="height: 500px"
+                  >
                     <div class="desc">
                       <h5 class="title">
-                        <a href="team-detail.html" class="onecall-lnk">
+                        <a href="#" class="onecall-lnk">
                           <span data-splitting data-onecall-scroll>
                             William Anderson
                           </span>
@@ -949,7 +971,7 @@
                           <li>
                             <a
                               class="onecall-social-link onecall-hover-2"
-                              href="facebook.com"
+                              href="#"
                               title="Fa"
                               target="_blank"
                             >
@@ -962,7 +984,7 @@
                           <li>
                             <a
                               class="onecall-social-link onecall-hover-2"
-                              href="linkedin.com"
+                              href="#"
                               title="In"
                               target="_blank"
                             >
@@ -975,17 +997,11 @@
                         </ul>
                       </div>
                     </div>
-                    <div class="image">
-                      <a href="team-detail.html">
-                        <img
-                          decoding="async"
-                          src="{% static 'static_assets/images/team-1-t-min.png' %}"
-                          width="350"
-                          height="530"
-                          alt="William Anderson"
-                        />
-                      </a>
-                    </div>
+                    <!-- <div class="image">
+										<a href="team-detail.html">
+											<img decoding="async" src="{% static 'website_assets/images/team-1-t-min.png' %}" width="350" height="530" alt="William Anderson" />
+										</a>
+									</div> -->
                     <div class="num onecall-text-white">
                       <span> W </span>
                     </div>
@@ -995,11 +1011,18 @@
 
               <!--team item-->
               <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                <div class="onecall-team" data-onecall-overlay data-onecall-scroll>
-                  <div class="onecall-team-item onecall-hover-3">
+                <div
+                  class="onecall-team"
+                  data-onecall-overlay
+                  data-onecall-scroll
+                >
+                  <div
+                    class="onecall-team-item onecall-hover-3"
+                    style="height: 500px"
+                  >
                     <div class="desc">
                       <h5 class="title">
-                        <a href="team-detail.html" class="onecall-lnk">
+                        <a href="#" class="onecall-lnk">
                           <span data-splitting data-onecall-scroll>
                             Amanda Jepson
                           </span>
@@ -1015,7 +1038,7 @@
                           <li>
                             <a
                               class="onecall-social-link onecall-hover-2"
-                              href="facebook.com"
+                              href="#"
                               title="Fa"
                               target="_blank"
                             >
@@ -1028,7 +1051,7 @@
                           <li>
                             <a
                               class="onecall-social-link onecall-hover-2"
-                              href="linkedin.com"
+                              href="#"
                               title="In"
                               target="_blank"
                             >
@@ -1041,17 +1064,11 @@
                         </ul>
                       </div>
                     </div>
-                    <div class="image">
-                      <a href="team-detail.html">
-                        <img
-                          decoding="async"
-                          src="{% static 'static_assets/images/team-7-t-min.png' %}"
-                          width="350"
-                          height="530"
-                          alt="Amanda Jepson"
-                        />
-                      </a>
-                    </div>
+                    <!-- <div class="image">
+										<a href="team-detail.html">
+											<img decoding="async" src="{% static 'website_assets/images/team-7-t-min.png' %}" width="350" height="530" alt="Amanda Jepson" />
+										</a>
+									</div> -->
                     <div class="num onecall-text-white">
                       <span> A </span>
                     </div>
@@ -1064,51 +1081,43 @@
 
         <!-- onecall CTA -->
         <section
-          class="onecall-section gap-top-140 gap-bottom-140 cta-bg-1"
-     
+          class="onecall-section gap-top-50 gap-bottom-50 refer-section refer-background-image"
         >
           <div class="container">
             <div class="row">
               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
                 <!-- Heading -->
-                <div class="onecall-heading gap-bottom-40 onecall-text-white">
-                  <div class="onecall-subtitle-1">
-                    <span> Get in Touch </span>
-                  </div>
-                  <h2 class="onecall-title-2">
-                    <span>
-                      Send Us Your <br />
-                      <strong>Bright Ideas</strong>
-                    </span>
-                  </h2>
-                </div>
+                <!-- <div class="onecall-heading gap-bottom-40 onecall-text-white">
+								<div class="onecall-subtitle-1">
+									<span> Get in Touch </span>
+								</div>
+								<h2 class="onecall-title-2">
+									<span> Send Us Your <br>
+										<strong>Bright Ideas</strong>
+									</span>
+								</h2>
+							</div> -->
 
                 <!-- Text -->
-                <div class="onecall-cta-text">
-                  <a href="mailto:infoname@domain.com" target="_blank"
-                    >infoname@domain.com</a
-                  >
-                  <p>
-                    36 East 8th Street, New York, <br />NY 10003, United States.
-                  </p>
-                </div>
+                <!-- <div class="onecall-cta-text">
+								<a href="mailto:infoname@domain.com" target="_blank">infoname@domain.com</a>
+								<p>36 East 8th Street, New York, <br />NY 10003, United States. </p>
+							</div> -->
               </div>
               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
                 <!-- Social -->
-                <div class="onecall-cta-social">
-                  <div
-                    class="image cta-circle2"
-                  >
-                    <div class="cta-img-circle img-circle--1"></div>
-                    <div class="cta-img-circle img-circle--2"></div>
-                    <div class="cta-img-circle img-circle--3"></div>
-                  </div>
+                <div class="onecall-cta-social refer-social">
+                  <!-- <div class="image">
+									<div class="cta-img-circle img-circle--1"></div>
+									<div class="cta-img-circle img-circle--2"></div>
+									<div class="cta-img-circle img-circle--3"></div>
+								</div> -->
                   <div class="desc">
                     <ul>
                       <li>
                         <a
                           class="onecall-btn btn--white btn--large btn--icon onecall-hover-btn"
-                          href="http://facebook.com"
+                          href="#"
                           target="_blank"
                         >
                           <i aria-hidden="true" class="fab fa-facebook-f"></i>
@@ -1118,7 +1127,7 @@
                       <li>
                         <a
                           class="onecall-btn btn--white btn--large btn--icon onecall-hover-btn"
-                          href="http://instagram.com"
+                          href="#"
                           target="_blank"
                         >
                           <i aria-hidden="true" class="fab fa-instagram"></i>
@@ -1128,7 +1137,7 @@
                       <li>
                         <a
                           class="onecall-btn btn--white btn--large btn--icon onecall-hover-btn"
-                          href="http://twitter.com"
+                          href="#"
                           target="_blank"
                         >
                           <i aria-hidden="true" class="fab fa-twitter"></i>
@@ -1138,7 +1147,7 @@
                       <li>
                         <a
                           class="onecall-btn btn--white btn--large btn--icon onecall-hover-btn"
-                          href="http://linkedin.com"
+                          href="#"
                           target="_blank"
                         >
                           <i aria-hidden="true" class="fab fa-linkedin-in"></i>
@@ -1146,6 +1155,227 @@
                         </a>
                       </li>
                     </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- onecall Why octs -->
+        <section class="onecall-section gap-top-50">
+          <div class="container">
+            <!-- Heading -->
+            <div class="onecall-heading align-center gap-top-40 gap-bottom-50">
+              <div class="onecall-subtitle-1">
+                <h1 class="onecall-title-1"><span> WHY CHOOSE OCTS </span></h1>
+              </div>
+              <!-- <h2 class="onecall-title-2">
+							<span> We Have Had the Pleasure of <br>Working with Some Clients </span>
+						</h2> -->
+            </div>
+            <!-- Reviews -->
+            <div class="onecall-reviews" style="background-color: #fff">
+              <div
+                style="
+                  background-position: center center;
+                  background-repeat: no-repeat;
+                  background-size: cover;
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                  height: 100%;
+                  opacity: 0.24;
+                "
+              ></div>
+              <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                  <!-- Reviews swiper -->
+                  <div
+                    class="onecall-reviews-carousel reviews--full onecall-text-white align-center"
+                  >
+                    <div
+                      class="swiper-container js-reviews-carousel"
+                      data-loop="false"
+                      data-autoplay="2000"
+                    >
+                      <div class="swiper-wrapper">
+                        <!--slide-->
+                        <div
+                          class="swiper-slide onecall-reviews-item"
+                          data-swiper-autoplay
+                        >
+                          <h1 class="title">
+                            <span data-splitting style="color: #000">
+                              Expertise</span
+                            >
+                          </h1>
+                          <div class="text">
+                            <div data-splitting>
+                              <p style="color: #000">
+                                “ Our team comprises highly skilled and
+                                knowledgeable tax professionals who stay updated
+                                with the latest tax laws and regulations. ”
+                              </p>
+                            </div>
+                          </div>
+
+                          <!-- <div class="subtitle">
+													<span data-splitting style="color: #000;"> Customer Support </span>
+												</div> -->
+                          <!-- <div class="onecall-stars stars--small">
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+												</div> -->
+                        </div>
+
+                        <!--slide-->
+                        <div
+                          class="swiper-slide onecall-reviews-item"
+                          data-swiper-autoplay
+                        >
+                          <h1 class="title">
+                            <span data-splitting style="color: #000">
+                              Personalized Approach
+                            </span>
+                          </h1>
+                          <div class="text">
+                            <div data-splitting>
+                              <p style="color: #000">
+                                “ We understand that every client's financial
+                                situation is unique, and we tailor our services
+                                to meet their specific requirements. ”
+                              </p>
+                            </div>
+                          </div>
+
+                          <!-- <div class="subtitle">
+													<span data-splitting style="color: #000;"> Code Quality </span>
+												</div> -->
+                          <!-- <div class="onecall-stars stars--small">
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="far fa-star"></i>
+												</div> -->
+                        </div>
+
+                        <!--slide-->
+                        <div
+                          class="swiper-slide onecall-reviews-item"
+                          data-swiper-autoplay
+                        >
+                          <h1 class="title">
+                            <span data-splitting style="color: #000">
+                              Integrity
+                            </span>
+                          </h1>
+                          <div class="text">
+                            <div data-splitting>
+                              <p style="color: #000">
+                                “ We uphold the highest ethical standards,
+                                ensuring complete transparency and
+                                confidentiality in all our dealings. ”
+                              </p>
+                            </div>
+                          </div>
+
+                          <!-- <div class="subtitle">
+													<span data-splitting style="color: #000;"> Design Quality </span>
+												</div> -->
+                          <!-- <div class="onecall-stars stars--small">
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+												</div> -->
+                        </div>
+
+                        <!--slide-->
+                        <div
+                          class="swiper-slide onecall-reviews-item"
+                          data-swiper-autoplay
+                        >
+                          <h1 class="title">
+                            <span data-splitting style="color: #000">
+                              Timely Service
+                            </span>
+                          </h1>
+                          <div class="text">
+                            <div data-splitting>
+                              <p style="color: #000">
+                                “ We value your time and strive to provide
+                                efficient and timely tax solutions, avoiding
+                                unnecessary delays. ”
+                              </p>
+                            </div>
+                          </div>
+
+                          <!-- <div class="subtitle">
+													<span data-splitting style="color: #000;"> Design Quality </span>
+												</div> -->
+                          <!-- <div class="onecall-stars stars--small">
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+												</div> -->
+                        </div>
+
+                        <!--slide-->
+                        <div
+                          class="swiper-slide onecall-reviews-item"
+                          data-swiper-autoplay
+                        >
+                          <h1 class="title">
+                            <span data-splitting style="color: #000">
+                              Client Satisfaction</span
+                            >
+                          </h1>
+                          <div class="text">
+                            <div data-splitting>
+                              <p style="color: #000">
+                                “ Our goal is the satisfaction of our clients.
+                                We measure our success by the success of our
+                                clients. ”
+                              </p>
+                            </div>
+                          </div>
+
+                          <!-- <div class="subtitle">
+													<span data-splitting style="color: #000;"> Design Quality </span>
+												</div> -->
+                          <!-- <div class="onecall-stars stars--small">
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+													<i class="fas fa-star"></i>
+												</div> -->
+                        </div>
+                      </div>
+                    </div>
+
+                    <!--navs-->
+                    <div class="js-reviews-carousel-navs">
+                      <div
+                        class="onecall-prev js-reviews-carousel-prev onecall-hover-2"
+                      >
+                        <i></i>
+                      </div>
+                      <div
+                        class="onecall-next js-reviews-carousel-next onecall-hover-2"
+                      >
+                        <i></i>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1179,17 +1409,19 @@
                   data-onecall-overlay
                   data-onecall-scroll
                 >
-                  <a target="_blank" href="http://google.com">
+                  <a target="_blank" href="#">
                     <span class="image">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/brand1.png' %}"
+                        src="{% static 'website_assets/images/brand1.png' %}"
                         width="285"
                         height="200"
                         alt="Visit Website"
                       />
                     </span>
-                    <span class="label onecall-white-black"> Visit Website </span>
+                    <span class="label onecall-white-black">
+                      Visit Website
+                    </span>
                   </a>
                 </div>
               </div>
@@ -1201,17 +1433,19 @@
                   data-onecall-overlay
                   data-onecall-scroll
                 >
-                  <a target="_blank" href="http://google.com">
+                  <a target="_blank" href="#">
                     <span class="image">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/brand2.png' %}"
+                        src="{% static 'website_assets/images/brand2.png' %}"
                         width="285"
                         height="200"
                         alt="Visit Website"
                       />
                     </span>
-                    <span class="label onecall-white-black"> Visit Website </span>
+                    <span class="label onecall-white-black">
+                      Visit Website
+                    </span>
                   </a>
                 </div>
               </div>
@@ -1223,17 +1457,19 @@
                   data-onecall-overlay
                   data-onecall-scroll
                 >
-                  <a target="_blank" href="http://google.com">
+                  <a target="_blank" href="#">
                     <span class="image">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/brand3.png' %}"
+                        src="{% static 'website_assets/images/brand3.png' %}"
                         width="285"
                         height="200"
                         alt="Visit Website"
                       />
                     </span>
-                    <span class="label onecall-white-black"> Visit Website </span>
+                    <span class="label onecall-white-black">
+                      Visit Website
+                    </span>
                   </a>
                 </div>
               </div>
@@ -1245,17 +1481,19 @@
                   data-onecall-overlay
                   data-onecall-scroll
                 >
-                  <a target="_blank" href="http://google.com">
+                  <a target="_blank" href="#">
                     <span class="image">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/brand4.png' %}"
+                        src="{% static 'website_assets/images/brand4.png' %}"
                         width="285"
                         height="200"
                         alt="Visit Website"
                       />
                     </span>
-                    <span class="label onecall-white-black"> Visit Website </span>
+                    <span class="label onecall-white-black">
+                      Visit Website
+                    </span>
                   </a>
                 </div>
               </div>
@@ -1267,17 +1505,19 @@
                   data-onecall-overlay
                   data-onecall-scroll
                 >
-                  <a target="_blank" href="http://google.com">
+                  <a target="_blank" href="#">
                     <span class="image">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/brand5.png' %}"
+                        src="{% static 'website_assets/images/brand5.png' %}"
                         width="285"
                         height="200"
                         alt="Visit Website"
                       />
                     </span>
-                    <span class="label onecall-white-black"> Visit Website </span>
+                    <span class="label onecall-white-black">
+                      Visit Website
+                    </span>
                   </a>
                 </div>
               </div>
@@ -1289,17 +1529,19 @@
                   data-onecall-overlay
                   data-onecall-scroll
                 >
-                  <a target="_blank" href="http://google.com">
+                  <a target="_blank" href="#">
                     <span class="image">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/brand6.png' %}"
+                        src="{% static 'website_assets/images/brand6.png' %}"
                         width="285"
                         height="200"
                         alt="Visit Website"
                       />
                     </span>
-                    <span class="label onecall-white-black"> Visit Website </span>
+                    <span class="label onecall-white-black">
+                      Visit Website
+                    </span>
                   </a>
                 </div>
               </div>
@@ -1311,17 +1553,19 @@
                   data-onecall-overlay
                   data-onecall-scroll
                 >
-                  <a target="_blank" href="http://google.com">
+                  <a target="_blank" href="#">
                     <span class="image">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/brand7.png' %}"
+                        src="{% static 'website_assets/images/brand7.png' %}"
                         width="285"
                         height="200"
                         alt="Visit Website"
                       />
                     </span>
-                    <span class="label onecall-white-black"> Visit Website </span>
+                    <span class="label onecall-white-black">
+                      Visit Website
+                    </span>
                   </a>
                 </div>
               </div>
@@ -1333,17 +1577,19 @@
                   data-onecall-overlay
                   data-onecall-scroll
                 >
-                  <a target="_blank" href="http://google.com">
+                  <a target="_blank" href="#">
                     <span class="image">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/brand2.png' %}"
+                        src="{% static 'website_assets/images/brand2.png' %}"
                         width="285"
                         height="200"
                         alt="Visit Website"
                       />
                     </span>
-                    <span class="label onecall-white-black"> Visit Website </span>
+                    <span class="label onecall-white-black">
+                      Visit Website
+                    </span>
                   </a>
                 </div>
               </div>
@@ -1352,7 +1598,10 @@
         </section>
 
         <!-- onecall Reviews -->
-        <section class="onecall-section gap-top-140 gap-bottom-100">
+        <section
+          class="onecall-section gap-top-140 gap-bottom-100"
+          id="reviews-section"
+        >
           <div class="container">
             <!-- Reviews -->
             <div class="onecall-reviews">
@@ -1513,16 +1762,16 @@
               <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 align-center">
                 <div class="onecall-service-grid-item onecall-hover-1">
                   <div class="image">
-                    <a href="services.html">
+                    <a href="#">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/serv-icon1.png' %}"
+                        src="{% static 'website_assets/images/money.png' %}"
                         alt="Creation"
                       />
                     </a>
                   </div>
                   <h5 class="onecall-title-3">
-                    <a href="services.html">
+                    <a href="#">
                       <span> Refund Status </span>
                     </a>
                   </h5>
@@ -1551,7 +1800,7 @@
                     <a href="#">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/serv-icon2.png' %}"
+                        src="{% static 'website_assets/images/encrypted.png' %}"
                         alt="Websites"
                       />
                     </a>
@@ -1584,13 +1833,13 @@
                     <a href="about-us.html">
                       <img
                         decoding="async"
-                        src="{% static 'static_assets/images/serv-icon3.png' %}"
+                        src="{% static 'website_assets/images/tax_logo.png' %}"
                         alt="Studio"
                       />
                     </a>
                   </div>
                   <h5 class="onecall-title-3">
-                    <a href="about-us.html">
+                    <a href="#">
                       <span>
                         One Call <br />
                         Tax Services
@@ -1615,121 +1864,171 @@
             </div>
           </div>
         </section>
-      </div>
+        <!-- onecall Contact Info -->
+        <section class="onecall-section" id="contact-section">
+          <div class="container">
+            <div class="row">
+              <div class="onecall-subtitle-1 align-center gap-bottom-40">
+                <h1 class="onecall-title-1"><span> CONTACT US </span></h1>
+              </div>
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-7">
+                <!-- Heading -->
 
+                <div class="onecall-text gap-bottom-40">
+                  <h4>Send Us A Message</h4>
+                  Then let us know about it and we can see what we can do to
+                  help
+                </div>
+
+                <!-- Form -->
+                <div class="onecall-form">
+                  <form id="cform" class="cform" method="post">
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <p>
+                          <input
+                            placeholder="Full Name"
+                            type="text"
+                            name="name"
+                          />
+                        </p>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <p>
+                          <input
+                            placeholder="Email Address"
+                            type="email"
+                            name="email"
+                          />
+                        </p>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <p>
+                          <input
+                            placeholder="Phone Number"
+                            type="tel"
+                            name="tel"
+                          />
+                        </p>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <p>
+                          <textarea
+                            placeholder="Message"
+                            name="message"
+                          ></textarea>
+                        </p>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <p>
+                          <button
+                            type="submit"
+                            class="onecall-btn onecall-hover-btn"
+                          >
+                            <span>Send Message</span>
+                          </button>
+                        </p>
+                      </div>
+                    </div>
+                  </form>
+                  <div class="alert-success" style="display: none">
+                    <h5>Thanks, your message is sent successfully.</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-5 contact-form">
+                <!-- Contact Info -->
+                <div class="onecall-contact-info onecall-text-white">
+                  <ul>
+                    <li>
+                      <h5>Contact Info</h5>
+                      <a href="#" class="onecall-lnk lnk--white" target="_blank"
+                        >+ 1 (020) 430 2973</a
+                      ><br />
+                      <a href="#" class="onecall-lnk lnk--white" target="_blank"
+                        >username@domain.com</a
+                      >
+                      <div
+                        class="onecall-social-1 onecall-social-active"
+                        style="margin-top: 10px"
+                      >
+                        <ul>
+                          <li>
+                            <a
+                              href="#"
+                              class="onecall-social-link onecall-hover-2"
+                            >
+                              <i class="icon fab fa-facebook"></i>
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="#"
+                              class="onecall-social-link onecall-hover-2"
+                            >
+                              <i class="icon fab fa-twitter"></i>
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="#"
+                              class="onecall-social-link onecall-hover-2"
+                            >
+                              <i class="icon fab fa-linkedin"></i>
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </li>
+                    <li>
+                      <h5>Houston</h5>
+                      <div>
+                        2001 N. Clybourn Avenue Suite 202, <br />Block D, IL
+                        60614
+                      </div>
+                    </li>
+                    <li>
+                      <h5>Los Angeles</h5>
+                      <div>2001 N. Clybourn Avenue Suite 202</div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
       <!-- Footer -->
       <footer class="onecall-footer footer--dark">
         <div class="footer--default">
           <div class="container">
             <div class="row">
-              <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+              <div class="col-xs-12 col-sm-12 col-md-6 col-lg-5">
                 <!-- Description -->
                 <div class="onecall-text onecall-text-white">
                   <h5>Information</h5>
-                  <p class="footer-note">
+                  <p style="opacity: 0.6">
                     From the moment our company was founded, we have helped our
                     clients find exceptional solutions
                     <strong>for their businesses</strong>.
                   </p>
                 </div>
               </div>
-              <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 offset-lg-1">
+              <div class="col-xs-12 col-sm-12 col-md-6 col-lg-5 offset-lg-1">
                 <!-- Description -->
                 <div class="onecall-text onecall-text-white">
                   <h5>Get in Touch</h5>
-                  <p class="footer-note">
+                  <p style="opacity: 0.6">
                     Baird House, 15-17 St Cross St <br />London EC1N 8UW
                   </p>
-                  <p class="footer-note">
-                    <a
-                      href="tel:+10204302973"
-                      class="onecall-lnk lnk--white"
-                      target="_blank"
+                  <p style="opacity: 0.6">
+                    <a href="#" class="onecall-lnk lnk--white" target="_blank"
                       >+ 1 (020) 430 2973</a
                     ><br />
-                    <a
-                      href="mailto:username@domain.com"
-                      class="onecall-lnk lnk--white"
-                      target="_blank"
+                    <a href="#" class="onecall-lnk lnk--white" target="_blank"
                       >username@domain.com</a
                     >
                   </p>
-                </div>
-              </div>
-              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4">
-                <!-- Gallery items -->
-                <div class="row">
-                  <!--gallery item-->
-                  <div class="col-4 col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                    <figure class="gallery-item">
-                      <a href="{% static 'static_assets/images/post5.jpg' %}">
-                        <img
-                          src="{% static 'static_assets/images/post5-1024x683.jpg' %}"
-                          alt=""
-                        />
-                      </a>
-                    </figure>
-                  </div>
-
-                  <!--gallery item-->
-                  <div class="col-4 col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                    <figure class="gallery-item">
-                      <a href="{% static 'static_assets/images/post4.jpg' %}">
-                        <img
-                          src="{% static 'static_assets/images/post4-1024x683.jpg' %}"
-                          alt=""
-                        />
-                      </a>
-                    </figure>
-                  </div>
-
-                  <!--gallery item-->
-                  <div class="col-4 col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                    <figure class="gallery-item">
-                      <a href="{% static 'static_assets/images/post3.jpg' %}">
-                        <img
-                          src="{% static 'static_assets/images/post3-1024x683.jpg' %}"
-                          alt=""
-                        />
-                      </a>
-                    </figure>
-                  </div>
-
-                  <!--gallery item-->
-                  <div class="col-4 col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                    <figure class="gallery-item">
-                      <a href="{% static 'static_assets/images/post4.jpg' %}">
-                        <img
-                          src="{% static 'static_assets/images/post4-1024x683.jpg' %}"
-                          alt=""
-                        />
-                      </a>
-                    </figure>
-                  </div>
-
-                  <!--gallery item-->
-                  <div class="col-4 col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                    <figure class="gallery-item">
-                      <a href="{% static 'static_assets/images/post1.jpg' %}">
-                        <img
-                          src="{% static 'static_assets/images/post1-1024x683.jpg' %}"
-                          alt=""
-                        />
-                      </a>
-                    </figure>
-                  </div>
-
-                  <!--gallery item-->
-                  <div class="col-4 col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                    <figure class="gallery-item">
-                      <a href="{% static 'static_assets/images/post6.jpg' %}">
-                        <img
-                          src="{% static 'static_assets/images/post6-1024x683.jpg' %}"
-                          alt=""
-                        />
-                      </a>
-                    </figure>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1743,7 +2042,7 @@
                 <!-- Copyright -->
                 <div class="copyright onecall-text-white">
                   © 2023 All rights reserved for<a
-                    href="https://bslthemes.com"
+                    href="#"
                     target="blank"
                     class="onecall-lnk lnk--white"
                   ></a>
@@ -1757,7 +2056,7 @@
                     <li>
                       <a
                         class="onecall-social-link onecall-hover-2"
-                        href="http://twitter.com"
+                        href="#"
                         title="Twitter"
                         target="_blank"
                       >
@@ -1767,7 +2066,7 @@
                     <li>
                       <a
                         class="onecall-social-link onecall-hover-2"
-                        href="http://linkedin.com"
+                        href="#"
                         title="LinkedIn"
                         target="_blank"
                       >
@@ -1777,7 +2076,7 @@
                     <li>
                       <a
                         class="onecall-social-link onecall-hover-2"
-                        href="http://dribbble.com"
+                        href="#"
                         title="Dribbble"
                         target="_blank"
                       >
@@ -1793,16 +2092,16 @@
       </footer>
     </div>
 
-    <script src="{% static 'static_assets/js/jquery.min.js' %}"></script>
-    <script src="{% static 'static_assets/js/bootstrap.js' %}"></script>
-    <script src="{% static 'static_assets/js/swiper.js' %}"></script>
-    <script src="{% static 'static_assets/js/splitting.js' %}"></script>
-    <script src="{% static 'static_assets/js/scroll-out.js' %}"></script>
-    <script src="{% static 'static_assets/js/jquery.pagepiling.js' %}"></script>
-    <script src="{% static 'static_assets/js/jquery.easy_number_animate.js' %}"></script>
-    <script src="{% static 'static_assets/js/magnific-popup.js' %}"></script>
-    <script src="{% static 'static_assets/js/imagesloaded.pkgd.js' %}"></script>
-    <script src="{% static 'static_assets/js/isotope.pkgd.js' %}"></script>
-    <script src="{% static 'static_assets/js/common.js' %}"></script>
+    <script src="{% static 'website_assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'website_assets/js/bootstrap.js' %}"></script>
+    <script src="{% static 'website_assets/js/swiper.js' %}"></script>
+    <script src="{% static 'website_assets/js/splitting.js' %}"></script>
+    <script src="{% static 'website_assets/js/scroll-out.js' %}"></script>
+    <script src="{% static 'website_assets/js/jquery.pagepiling.js' %}"></script>
+    <script src="{% static 'website_assets/js/jquery.easy_number_animate.js' %}"></script>
+    <script src="{% static 'website_assets/js/magnific-popup.js' %}"></script>
+    <script src="{% static 'website_assets/js/imagesloaded.pkgd.js' %}"></script>
+    <script src="{% static 'website_assets/js/isotope.pkgd.js' %}"></script>
+    <script src="{% static 'website_assets/js/common.js' %}"></script>
   </body>
 </html>

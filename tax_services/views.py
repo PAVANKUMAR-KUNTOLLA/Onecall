@@ -27,8 +27,7 @@ from .serializers import TaxFilingSerializer, FinancialYearSerializer,Appointmen
 # Create your views here.
 
 def index(request):
-    context = {"title":"Duiqo", "login_page_url":"http://127.0.0.1:8000/app/home/"}
-    return render(request, 'index_prev.html', context)
+    return render(request, 'index_prev.html')
 
 def application(request):
     return render(request, 'index.html')
