@@ -18,7 +18,7 @@ from rest_framework import status
 from users.models import *
 from .models import *
 
-from onecall.settings import MEDIA_ROOT #, DEFAULT_FROM_EMAIL
+from onecall.settings import MEDIA_ROOT, DEFAULT_FROM_EMAIL
 
 from .helpers import  get_consolidated_data
 from users.serializers import UserProfileSerializer
@@ -85,8 +85,14 @@ def tax_filing(request):
             if "id" not in data.keys():
                 context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Tax Filing Id is Required"}
                 return Response(status=status.HTTP_400_BAD_REQUEST, data=context)
+
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not request.user.id ==  tax_filing_ins.user.id:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             
-            data = get_consolidated_data(data["id"])
+            data = get_consolidated_data(tax_filing_ins)
             context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
         
@@ -110,6 +116,10 @@ def personal_contact_details(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
             print(data)
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not request.user.id ==  tax_filing_ins.user.id:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             
             del data["id"]
 
@@ -340,6 +350,10 @@ def dependant_details(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not request.user.id ==  tax_filing_ins.user.id:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             return_dict = list()
             dependants = tax_filing_ins.dependants.all()
             each_dict = dict()
@@ -417,6 +431,10 @@ def bank_details(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not request.user.id ==  tax_filing_ins.user.id:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             
             del data["id"]
 
@@ -497,6 +515,10 @@ def income_details(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not request.user.id ==  tax_filing_ins.user.id:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             
             del data["id"]
 
@@ -587,11 +609,16 @@ def upload_tax_docs(request):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not request.user.id ==  tax_filing_ins.user.id:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
             if request.FILES:
                 # Access the uploaded file from request.FILES
                 uploaded_file = request.FILES['upload']
-                
-                tax_filing_ins = TaxFiling.objects.get(id=request.data["id"])
+
                 tax_filing_ins.tax_docs = uploaded_file
                 tax_filing_ins.save()
                 
@@ -600,34 +627,27 @@ def upload_tax_docs(request):
             else:
                 return_dict = list()
 
-                if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs"))):
-                    
-                    uploaded_files = listdir(os.path.join(MEDIA_ROOT, "TaxDocs"))
-                    files_dict = dict()
-                    # assigning each_file's creation date and time
-                    for each_file in uploaded_files:
-                        files_dict.update({each_file:os.path.getctime(os.path.join(MEDIA_ROOT, "TaxDocs", each_file))})
-                    
-                    # Sorting the files in descending order
-                    sorted_files_dict = dict(sorted(files_dict.items(), reverse=True, key=lambda x:x[1]))
+                # Return the file associated with tax_filing_ins.tax_docs
+                tax_docs = tax_filing_ins.tax_docs
+                if tax_docs:
+                    # Prepare the response data for the associated file
+                    file_name = tax_docs.name  # Get the file name
+                    file_size_in_bytes = os.path.getsize(tax_docs.path)
+                    file_size_kb = round(file_size_in_bytes / 1024, 2)
+                    file_size_mb = round(file_size_in_bytes / (1024 * 1024), 2)
+                    file_created_at = os.path.getctime(tax_docs.path)
+                    upload_time = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
 
-                    for each_file, file_created_at in sorted_files_dict.items():
-                        if not each_file.startswith(f'U{data["id"]}_'):
-                            continue
-                        each_file_dict = {"file_name":each_file, "upload_time":None, "file_size":None}
+                    each_file_dict = {
+                        "file_name": file_name.replace("TaxDocs/", ""),
+                        "upload_time": upload_time,
+                        "file_size": f'{file_size_kb} (KB)/{file_size_mb} (MB)'
+                    }
 
-                        # Converting file created_at from datetime to str
-                        each_file_dict["upload_time"] = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
-                        
-                        # Reading the file size, by default size will be quantified in bytes
-                        file_size_in_bytes = os.path.getsize(os.path.join(MEDIA_ROOT, "TaxDocs", each_file))
-                        # Converting file size into KB and MB Format 
-                        each_file_dict["file_size"] = f'{round(file_size_in_bytes/1024, 2)} (KB)/{round(file_size_in_bytes/(1024*1024), 2)} (MB)'
+                    return_dict.append( each_file_dict)
                     
-                        return_dict.append( each_file_dict)
-                    
-                    context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
-                    return Response(status=status.HTTP_200_OK, data= context)
+                context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+                return Response(status=status.HTTP_200_OK, data= context)
         
         else:
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET & POST Method Available"}
@@ -763,8 +783,15 @@ def delete_tax_docs(request):
             file_name = data["file_name"]
            
             if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs", file_name))):
-                os.remove(os.path.join(MEDIA_ROOT, "TaxDocs", file_name))
+                
                 tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+                if not request.user.id ==  tax_filing_ins.user.id:
+                    context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                    return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
+                os.remove(os.path.join(MEDIA_ROOT, "TaxDocs", file_name))
+
                 tax_filing_ins.tax_docs = None
                 tax_filing_ins.save()
                 
@@ -795,6 +822,10 @@ def appointment_details(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not request.user.id ==  tax_filing_ins.user.id:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             queryset = tax_filing_ins.appointments.all().order_by("-created_at")
             data = AppointmentSerializer(queryset, many=True).data
                 
@@ -822,6 +853,10 @@ def book_appointment(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not request.user.id ==  tax_filing_ins.user.id:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             start_date = data["date"]
             start_time = data["time"]
 
@@ -928,10 +963,69 @@ def make_referal(request):
             user_ins = User.objects.get(id=request.user.id)
             referal_ins = Referal.objects.create(referred_by=user_ins, first_name=data["firstName"],  last_name=data["lastName"],  email=data["email"], contact_no=data["contact"])
             referal_ins.save()
-            
+
+            email=data["email"]
+            referral_id = request.user.referral_id
+
+            referral_url = request.build_absolute_uri(f'/register/?email={email}&referralId={referral_id}')  
+
+            email_body = f'Hello {email}, \n Use link below to register  \n' + f'You are referred to TAXCOOLER INC by {request.user.email} \n Please register with below link (by clicking on the link) to file your taxes at Taxcooler Inc. \n' + \
+                    referral_url + "\n Regards \nOnecall Tax Services Team"
+
+            subject = "Register & File your taxes at Onecall Tax Services"            
+            from_email = DEFAULT_FROM_EMAIL
+            to = [data["email"], ]
+            email = EmailMessage(subject, email_body, from_email, to)
+            email.send()
+
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Referal successfull"}
             return Response(status=status.HTTP_200_OK, data= context)
             
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def download_template(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            file_name = data["file_name"]
+            if os.path.exists((os.path.join(MEDIA_ROOT, "templates", file_name))):
+                # Reading the file that user has requested
+                with open(os.path.join(MEDIA_ROOT, "templates", file_name), 'rb') as f:
+                    file_data = f.read()
+
+                # Determine the file's content type based on the file extension
+                file_extension = os.path.splitext(file_name)[1].lower()
+
+                # Map file extensions to content types
+                content_types = {
+                    '.csv': 'text/csv',
+                    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    '.xls': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    '.zip': 'application/zip',
+                    # Add more file types and content types as needed
+                }
+
+                # Default to application/octet-stream if the file extension is not recognized
+                content_type = content_types.get(file_extension, 'application/octet-stream')
+
+                response = HttpResponse(file_data, content_type=content_type)
+                response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+                return response
+            
+            else:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"No files Found with the requested name"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
         else:
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)

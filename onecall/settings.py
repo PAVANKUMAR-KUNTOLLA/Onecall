@@ -152,3 +152,12 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'stat'),)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ORIGIN_ALLOW_ALL = config("CORS_ORIGIN_ALLOW_ALL", default=False, cast=bool)
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS").split(',')
+
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD") #sender mail password
+EMAIL_HOST_USER = config("EMAIL_HOST_USER") #sender mail username
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_TO_EMAIL = config("DEFAULT_TO_EMAIL")

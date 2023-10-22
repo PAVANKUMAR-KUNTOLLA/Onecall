@@ -1,8 +1,7 @@
 from .models import *
 
-def get_consolidated_data(id):
-    return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{}, "bankDetails":{}, "dependantDetails":list(), "spouseDetails":{}}
-    tax_filing_ins = TaxFiling.objects.get(id=id)
+def get_consolidated_data(tax_filing_ins):
+    return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{}, "bankDetails":{}, "spouseDetails":{}}
 
     #// Personal Details
     return_dict["personalDetails"]["userId"] = tax_filing_ins.user.id
@@ -36,7 +35,7 @@ def get_consolidated_data(id):
         return_dict["contactDetails"]["city"]= ""
         return_dict["contactDetails"]["state"]= ""
         return_dict["contactDetails"]["zipCode"]= ""
-        return_dict["contactDetails"]["country"]= ""
+        return_dict["contactDetails"]["country"]= "USA"
         return_dict["contactDetails"]["primaryCountryCode"]= ""
         return_dict["contactDetails"]["primaryPhoneNumber"]= ""
         return_dict["contactDetails"]["secondaryCountryCode"]= ""
@@ -103,7 +102,7 @@ def get_consolidated_data(id):
         return_dict["providedLivingSupport"] = True
     else:
         return_dict["providedLivingSupport"]= False
-    
+
     #//Bank Details
     if tax_filing_ins.bank:
         return_dict["bankDetails"]["bankingType"]= tax_filing_ins.refund_type
@@ -129,7 +128,7 @@ def get_consolidated_data(id):
         return_dict["bankDetails"]["confirmAccountType"]= ""
     
     for key, value in return_dict.items():
-        if key in ["providedLivingSupport", "dependantDetails"]:
+        if key in ["providedLivingSupport"]:
             continue
         for sub_key, sub_value in value.items():
             if (sub_value == None) and (not sub_value == False):

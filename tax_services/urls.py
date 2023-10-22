@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/v1/delete_appointment/', delete_appointment),
     path('api/v1/make_referal/',make_referal),
     path('api/v1/referal_details/', referal_details),
+    path('api/v1/download_template',download_template),
 ]

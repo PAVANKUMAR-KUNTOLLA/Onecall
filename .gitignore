@@ -61,6 +61,6 @@ Thumbs.db
 /media/*.docx
 /media/*.json
 /model/*
-/users/migrations/*
+# /users/migrations/*
 db.sqlite3
 /column_mapping.json

@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .serializers import *
 from django.core.mail import EmailMessage
+from onecall.settings import DEFAULT_FROM_EMAIL
 from rest_framework.authtoken.models import Token
 
 # reset password imports
