@@ -64,3 +64,5 @@ Thumbs.db
 # /users/migrations/*
 db.sqlite3
 /column_mapping.json
+
+/media/TaxDocs/*
