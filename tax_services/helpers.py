@@ -1,7 +1,7 @@
 from .models import *
 
 def get_consolidated_data(tax_filing_ins):
-    return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{}, "bankDetails":{}, "spouseDetails":{}}
+    return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{}, "bankDetails":{}, "dependantDetails":list(), "spouseDetails":{}}
 
     #// Personal Details
     return_dict["personalDetails"]["userId"] = tax_filing_ins.user.id
@@ -103,6 +103,25 @@ def get_consolidated_data(tax_filing_ins):
     else:
         return_dict["providedLivingSupport"]= False
 
+    dependants = tax_filing_ins.dependants.all()
+    each_dict = dict()
+    for dependant_ins in dependants:
+        each_dict["id"] = dependant_ins.id
+        each_dict["additionalFirstName"]= dependant_ins.first_name
+        each_dict["additionalMiddleInitial"]= dependant_ins.middle_name
+        each_dict["additionalLastName"]= dependant_ins.last_name
+        each_dict["additionalSsnOrItin"]= dependant_ins.ssn
+        each_dict["additionalApplyForItin"]= dependant_ins.apply_for_itin
+        each_dict["additionalDateOfBirth"]= dependant_ins.dob
+        each_dict["additionalGender"]= dependant_ins.gender
+        each_dict["additionalOccupation"]= dependant_ins.job_title
+        each_dict["additionalVisaType"]= dependant_ins.visa_type
+        each_dict["additionalEmail"]= dependant_ins.email
+        each_dict["additionalRelationship"]= dependant_ins.relationship
+        each_dict["additionalStayCount"]= dependant_ins.stay_period
+
+        return_dict["dependantDetails"].append(each_dict)
+
     #//Bank Details
     if tax_filing_ins.bank:
         return_dict["bankDetails"]["bankingType"]= tax_filing_ins.refund_type
@@ -128,7 +147,7 @@ def get_consolidated_data(tax_filing_ins):
         return_dict["bankDetails"]["confirmAccountType"]= ""
     
     for key, value in return_dict.items():
-        if key in ["providedLivingSupport"]:
+        if key in ["providedLivingSupport", "dependantDetails"]:
             continue
         for sub_key, sub_value in value.items():
             if (sub_value == None) and (not sub_value == False):
