@@ -442,7 +442,7 @@ def bank_details(request):
                 if value == "true":
                     data[key] = True
                 elif value=="false":
-                    data["key"] = False
+                    data[key] = False
                 elif value == "":
                     data[key]=None
             
@@ -526,7 +526,7 @@ def income_details(request):
                 if value == "true":
                     data[key] = True
                 elif value=="false":
-                    data["key"] = False
+                    data[key] = False
                 elif key == "incomeAmount" and value == "":
                     data[key]=0
             
