@@ -18,6 +18,7 @@ from rest_framework import status
 from users.models import *
 from .models import *
 
+from django.core.mail import EmailMessage
 from onecall.settings import MEDIA_ROOT, DEFAULT_FROM_EMAIL
 
 from .helpers import  get_consolidated_data
