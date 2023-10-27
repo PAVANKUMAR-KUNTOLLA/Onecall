@@ -970,8 +970,8 @@ def make_referal(request):
 
             referral_url = request.build_absolute_uri(f'/register/?email={email}&referralId={referral_id}')  
 
-            email_body = f'Hello {email}, \n Use link below to register  \n' + f'You are referred to TAXCOOLER INC by {request.user.email} \n Please register with below link (by clicking on the link) to file your taxes at Taxcooler Inc. \n' + \
-                    referral_url + "\n Regards \nOnecall Tax Services Team"
+            email_body = f'Hello {email}, \n Use link below to register  \n\n' + f'You are referred to Onecall Tax Services INC by {request.user.email} \n\n Please register with below link (by clicking on the link) to file your taxes at Taxcooler Inc. \n\n' + \
+                    referral_url + "\n\n Regards \nOnecall Tax Services Team"
 
             subject = "Register & File your taxes at Onecall Tax Services"            
             from_email = DEFAULT_FROM_EMAIL
