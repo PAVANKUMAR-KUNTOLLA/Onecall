@@ -47,6 +47,16 @@ def signup(request):
             print(signup_serializer.data)
             signup_serializer.save()
             user_data = signup_serializer.data
+            
+            subject = 'User Signed Up - Onecall Tax Services'
+            login_url = request.build_absolute_uri(f'/login')
+            message = f'"This is an Automated Mail" \n\nHi {user_data["email"]}, \nYou have successfully signed-up for a user account, for the Onecall Tax Services. You can login now.\n\nregards,\nOnecall Tax Services Digitisation Team. \n\n you can login through the below link - {login_url}'
+            
+            from_email = DEFAULT_FROM_EMAIL
+            to = [user_data["email"], ]
+            email = EmailMessage(subject, message, from_email, to)
+            email.send()
+
 
             context = None
             status_flag = True
