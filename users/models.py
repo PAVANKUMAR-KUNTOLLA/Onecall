@@ -49,7 +49,7 @@ class User(AbstractUser):
     ssn = models.CharField(unique=True, max_length=255, null=True, blank=True)
     gender = models.CharField(max_length=255, choices=GENDER_CHOICES)
     job_title = models.CharField(max_length=555, null=True, blank=True)
-    residential_status = models.CharField(max_length=255, choices=RESIDENTIAL_STATUS_CHOICES, null=True, blank=True)
+    residential_status = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=255, choices=MARITAL_CHOICES, null=True, blank=True)
     spouse = models.ForeignKey("users.User", on_delete=models.RESTRICT, null=True, blank=True, related_name="partner")
     contact = models.ForeignKey("users.Contact", on_delete=models.CASCADE, blank=True, null=True, related_name="contact_info")
