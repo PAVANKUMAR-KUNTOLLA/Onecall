@@ -1,6 +1,18 @@
 from django.contrib import admin
 from .models import *
 
+from django.contrib.auth.models import Group
+
+admin.site.unregister(Group)
+
+try:
+    from rest_framework.authtoken.models import TokenProxy as DRFToken
+except ImportError:
+    from rest_framework.authtoken.models import Token as DRFToken
+
+admin.site.unregister(DRFToken)
+
+
 # Register your models here.
 @admin.register(FinancialYear)
 class FinancialYearAdmin(admin.ModelAdmin):
