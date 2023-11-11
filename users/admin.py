@@ -13,3 +13,8 @@ class UserAdmin(admin.ModelAdmin):
 class ContactAdmin(admin.ModelAdmin):
     list_display = ['user', 'city', 'state', 'country', 'primary_number_country_code', 'primary_number',]
     readonly_fields =  ['user', 'city', 'state', 'country', 'primary_number_country_code', 'primary_number',]
+
+@admin.register(Associate)
+class AssociateAdmin(admin.ModelAdmin):
+    list_display = ['user', 'code', 'contact_no', 'upload_docs_view', 'manage_appointment']
+    list_display = ['user', 'code', 'created_at', 'updated_at']

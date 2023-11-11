@@ -135,3 +135,25 @@ class Contact(models.Model):
     def save(self, *args, **kwargs):
         user = get_current_user()
         super(Contact, self).save(*args, **kwargs)
+
+class Associate(models.Model):
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, null=True, blank=True, related_name="associate")
+    code = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    contact_no = models.CharField(max_length=255, null=True, blank=True)
+    upload_docs_view = models.BooleanField(default=False)
+    manage_appointment = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    def __str__(self):
+        return self.user.email
+
+    def save(self, *args, **kwargs):
+        user = get_current_user()
+          # To create a new object of a model
+        if self._state.adding:
+            if not self.user.role == "ADMIN":
+                raise Exception("Only ADMIN Users can be Associates")
+ 
+        super(Associate, self).save(*args, **kwargs)

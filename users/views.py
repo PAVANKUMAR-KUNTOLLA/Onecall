@@ -32,7 +32,7 @@ def signup(request):
                 data=data, context={'request': request})
             signup_serializer.is_valid(raise_exception=True)
 
-            if data["passwordConfirmation"] != data["password"]:
+            if data["role"] == "CLIENT" and data["passwordConfirmation"] != data["password"]:
                 context = None
                 status_flag = False
                 message = "Password mismatch"
@@ -47,16 +47,16 @@ def signup(request):
             print(signup_serializer.data)
             signup_serializer.save()
             user_data = signup_serializer.data
-            
-            subject = 'User Signed Up - Onecall Tax Services'
-            login_url = request.build_absolute_uri(f'/login')
-            message = f'"This is an Automated Mail" \n\nHi {user_data["email"]}, \nYou have successfully signed-up for a user account, for the Onecall Tax Services. You can login now.\n\nregards,\nOnecall Tax Services Digitisation Team. \n\n you can login through the below link - {login_url}'
-            
-            from_email = DEFAULT_FROM_EMAIL
-            to = [user_data["email"], ]
-            email = EmailMessage(subject, message, from_email, to)
-            email.send()
 
+            if user_data["role"] == "CLIENT":
+                subject = 'User Signed Up - Onecall Tax Services'
+                login_url = request.build_absolute_uri(f'/login')
+                message = f'"This is an Automated Mail" \n\nHi {user_data["email"]}, \nYou have successfully signed-up for a user account, for the Onecall Tax Services. You can login now.\n\nregards,\nOnecall Tax Services Digitisation Team. \n\n you can login through the below link - {login_url}'
+                
+                from_email = DEFAULT_FROM_EMAIL
+                to = [user_data["email"], ]
+                email = EmailMessage(subject, message, from_email, to)
+                email.send()
 
             context = None
             status_flag = True
@@ -285,6 +285,63 @@ def change_password(request):
         context =  None
         status_flag = False
         message = "Password Reset Failed"
+        status_code = status.HTTP_400_BAD_REQUEST
+        context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+        return Response(status=status_code, data= context)
+
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def associates(request):
+    try:
+        user = request.user
+        if request.method == 'GET':
+            query_set = Associate.objects.all().order_by("-created_at")#.exclude(user__email=user.email)
+            associates_data = AssociateSerializer(query_set, many=True).data
+
+            context = associates_data
+            status_flag = True
+            message = None
+            status_code = status.HTTP_200_OK
+            context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+            return Response(status=status_code, data= context)
+
+        elif request.method == "POST":
+            data = request.data.copy()
+            if not request.user.is_superuser:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+            
+            if "associateId" not in data.keys() or data["associateId"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Associate Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            associate_ins = Associate.objects.get(id=data["associateId"])
+            associate_ins.delete()
+
+            query_set = Associate.objects.all().order_by("-created_at")#.exclude(user__email=request.user.email)
+            associates_data = AssociateSerializer(query_set, many=True).data
+
+            context = associates_data
+            status_flag = True
+            message = "Deleted successfully"
+            status_code = status.HTTP_200_OK
+            context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+            return Response(status=status_code, data= context)
+            
+        else:
+            context = None
+            status_flag = False
+            message = "Only Get and Post Method available"
+            status_code = status.HTTP_405_METHOD_NOT_ALLOWED
+            context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+            return Response(status=status_code, data= context)
+
+    except Exception as excepted_message:
+        print(excepted_message)
+        context = None
+        status_flag = False
+        message = str(excepted_message)
         status_code = status.HTTP_400_BAD_REQUEST
         context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
         return Response(status=status_code, data= context)

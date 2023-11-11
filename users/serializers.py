@@ -3,15 +3,21 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.validators import validate_email
 from rest_framework import serializers
-from users.models import User
+from users.models import User, Associate
 
 class SignupSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
     firstName = serializers.CharField(required=True)
     lastName = serializers.CharField(required=True)
-    gender = serializers.CharField(required=True)
+    gender = serializers.CharField(required=False)
+    role = serializers.CharField(required=True)
     referralId = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+
+    contact = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    associateCode = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    uploadDocsView = serializers.BooleanField(required=False)
+    manageAppointment = serializers.BooleanField(required=False)
 
     def validate_email(self, email):
         is_valid_email = False
@@ -20,25 +26,65 @@ class SignupSerializer(serializers.Serializer):
         except Exception as excepted_message:
             raise Exception('Please use valid email for registration.')
             
-        if User.objects.filter(email__iexact=email).exists():
+        if User.objects.filter(email__iexact=email).exists() and not self.initial_data.get("role") == "ADMIN":
             raise Exception('This user already exists. Please sign in.')
         return str(email).strip().lower()
+
+    def validate_role(self, role):
+        if role == "ADMIN":
+            contact = self.initial_data.get("contact")
+            associateCode = self.initial_data.get("associateCode")
+            uploadDocsView = self.initial_data.get("uploadDocsView")
+            manageAppointment = self.initial_data.get("manageAppointment")
+
+            if not contact:
+                raise serializers.ValidationError('Contact No is required for admin users.')
+
+            if not associateCode:
+                raise serializers.ValidationError('Associate code is required for admin users.')
+            else:
+                if Associate.objects.filter(code__iexact=self.initial_data.get("associateCode")).exists():
+                    raise Exception('User with this Associate code already exists. Please sign in.')
+
+            if not uploadDocsView:
+                raise serializers.ValidationError('Upload docs view is required for admin users.')
+
+            if not manageAppointment:
+                raise serializers.ValidationError('Manage appointment is required for admin users.')
+
+        return role
 
     def save(self):
         first_name = self.validated_data['firstName']
         last_name = self.validated_data['lastName']
-        gender = self.validated_data['gender']
+        if "gender" in self.validated_data:
+            gender = self.validated_data['gender']
+        else:
+            gender = "MALE"
         email = self.validated_data['email']
         password = self.validated_data['password']
-        referralId = self.validated_data['referralId']
+        role = self.validated_data["role"]
+        if role == "CLIENT":
+            referralId = self.validated_data['referralId']
+        else:
+            referralId = None
 
-        user = User.objects.create(first_name=first_name,last_name=last_name,gender=gender,email=email)
-        user.is_active = True
-        user.set_password(password)
-        if referralId != None and  referralId != "" and "octs" in referralId and referralId.isalnum() and User.objects.filter(id=referralId.split("octs")[1]).exists() :
-            user_referral = User.objects.get(id=referralId.split("octs")[1])
-            user.referred_by = user_referral
-        user.save()
+        if not User.objects.filter(email__iexact=email).exists():
+            user = User.objects.create(first_name=first_name,last_name=last_name,gender=gender,email=email,role=role)
+            user.is_active = True
+            user.set_password(password)
+            if referralId != None and  referralId != "" and "octs" in referralId and referralId.isalnum() and User.objects.filter(id=referralId.split("octs")[1]).exists() :
+                user_referral = User.objects.get(id=referralId.split("octs")[1])
+                user.referred_by = user_referral
+            user.save()
+        else:
+            user = User.objects.get(email=email)
+
+        if user.role == "ADMIN":
+            associate = Associate.objects.create(user=user, code=self.validated_data["associateCode"], 
+                    upload_docs_view=self.validated_data["uploadDocsView"], manage_appointment=self.validated_data["manageAppointment"], 
+                    contact_no=self.validated_data["contact"])
+            associate.save()
         return user
 
 class AuthenticationSerializer(serializers.Serializer):
@@ -74,7 +120,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', "last_name", "gender", 'email', "phone_no", "address", "referred_by", "referral_id")
+        fields = ('id', 'first_name', "last_name", "gender", 'email', "role", "phone_no", "address", "referred_by", "referral_id")
         
     def get_phone_no(self, instance):
         if instance.contact:
@@ -96,3 +142,38 @@ class UserProfileSerializer(serializers.ModelSerializer):
             return instance.referred_by.referral_id
         else:
             return ""
+
+class AssociateSerializer(serializers.ModelSerializer):
+    first_name = serializers.SerializerMethodField()
+    last_name = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Associate
+        fields = ('id', 'first_name', "last_name", 'email', "role", "contact_no", "code", "upload_docs_view", "manage_appointment" )
+        
+    def get_first_name(self, instance):
+        if instance.user:
+            return instance.user.first_name
+        else:
+            return ""
+    
+    def get_last_name(self, instance):
+        if instance.user:
+            return instance.user.last_name
+        else:
+            return ""
+
+    def get_email(self, instance):
+        if instance.user:
+            return instance.user.email
+        else:
+            return ""
+    
+    def get_role(self, instance):
+        if instance.user:
+            return instance.user.role
+        else:
+            return ""
+
