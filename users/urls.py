@@ -10,4 +10,6 @@ urlpatterns = [
     path('api/v1/reset-password/', reset_password),
     path('api/v1/change-password/', change_password),
     path('api/v1/associates/', associates),
+    path('api/v1/users/', users),
+
 ]

@@ -89,7 +89,7 @@ def tax_filing(request):
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-            if not request.user.id ==  tax_filing_ins.user.id:
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             
@@ -118,7 +118,7 @@ def personal_contact_details(request):
             print(data)
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-            if not request.user.id ==  tax_filing_ins.user.id:
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             
@@ -352,7 +352,7 @@ def dependant_details(request):
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-            if not request.user.id ==  tax_filing_ins.user.id:
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             return_dict = list()
@@ -433,7 +433,7 @@ def bank_details(request):
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-            if not request.user.id ==  tax_filing_ins.user.id:
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             
@@ -517,7 +517,7 @@ def income_details(request):
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-            if not request.user.id ==  tax_filing_ins.user.id:
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             
@@ -612,7 +612,7 @@ def upload_tax_docs(request):
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-            if not request.user.id ==  tax_filing_ins.user.id:
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
 
@@ -787,7 +787,7 @@ def delete_tax_docs(request):
                 
                 tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-                if not request.user.id ==  tax_filing_ins.user.id:
+                if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                     context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                     return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
 
@@ -824,7 +824,7 @@ def appointment_details(request):
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-            if not request.user.id ==  tax_filing_ins.user.id:
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             queryset = tax_filing_ins.appointments.all().order_by("-created_at")
@@ -855,7 +855,11 @@ def book_appointment(request):
 
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
-            if not request.user.id ==  tax_filing_ins.user.id:
+            if tax_filing_ins.appointments and tax_filing_ins.appointments.filter(status="BOOKED").exists():
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Please Cancel the existing appointment"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             start_date = data["date"]
@@ -878,7 +882,6 @@ def book_appointment(request):
             # Update the tax_filing_ins with the appointment
             tax_filing_ins.appointments.add(appointment_ins.id)
             tax_filing_ins.save()
-
             
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Appointment Booked successfully"}
             return Response(status=status.HTTP_200_OK, data= context)
@@ -891,6 +894,51 @@ def book_appointment(request):
         context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
         return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_appointment(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            print(data)
+            if "appointmentId" not in data.keys() or data["appointmentId"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Appointment Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+            
+            if not request.user.is_admin:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
+            appointment_ins = Appointment.objects.get(id=data["appointmentId"])
+
+            start_date = data["date"]
+            start_time = data["time"]
+
+            # Parse the start time and date
+            start_datetime = datetime.datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+
+            # Calculate the end time by adding 30 minutes
+            end_datetime = start_datetime + datetime.timedelta(minutes=30)
+
+            # Create aware datetimes with the specified time zone
+            start_datetime_aware = pytz.timezone(appointment_ins.time_zone).localize(start_datetime)
+            end_datetime_aware = pytz.timezone(appointment_ins.time_zone).localize(end_datetime)
+
+            appointment_ins.start_time=start_datetime_aware
+            appointment_ins.end_time=end_datetime_aware
+            appointment_ins.save()
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Appointment Updated successfully"}
+ 
+            return Response(status=status.HTTP_200_OK, data= context)
+            
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -899,10 +947,6 @@ def delete_appointment(request):
     data = request.data.copy()
     try:
         if request.method == "POST":
-            
-            if "id" not in data.keys() or data["id"] == None:
-                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
-                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
             if "appointmentId" not in data.keys() or data["appointmentId"] == None:
                 context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Appointment Id is Required"}

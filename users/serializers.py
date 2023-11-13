@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.validators import validate_email
 from rest_framework import serializers
 from users.models import User, Associate
+from tax_services.models import Appointment
+from datetime import datetime
 
 class SignupSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
@@ -142,6 +144,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
             return instance.referred_by.referral_id
         else:
             return ""
+
+class UserTaxFilingSerializer(serializers.ModelSerializer):
+    phone_no = serializers.SerializerMethodField()
+    appointment = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', "last_name", 'email', "phone_no", "appointment")
+        
+    def get_phone_no(self, instance):
+        if instance.contact:
+            return instance.contact.primary_number
+        else:
+            return ""
+
+    def get_appointment(self, instance):
+        if Appointment.objects.filter(filing__user__id=instance.id, status="BOOKED").exists():
+            appointment_ins = Appointment.objects.get(filing__user__id=instance.id, status="BOOKED")
+            return {"id":appointment_ins.id, "date":datetime.strftime(appointment_ins.start_time, "%d %b %Y"), "time":datetime.strftime(appointment_ins.start_time, "%H:%M")}
+        else:
+            return {"id":"", "date":"", "time":""}      
 
 class AssociateSerializer(serializers.ModelSerializer):
     first_name = serializers.SerializerMethodField()

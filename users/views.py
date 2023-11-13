@@ -345,3 +345,76 @@ def associates(request):
         status_code = status.HTTP_400_BAD_REQUEST
         context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
         return Response(status=status_code, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def users(request):
+    try:
+        request_data = request.data.copy()
+        user = request.user
+       
+        if request.method == "POST":
+            data = request.data.copy()
+            if not request.user.is_admin:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
+            request_data_filter = {}
+            
+            if request_data["name"] == "Appointment Date":
+                if request_data["search"]:
+                    search_date = datetime.strptime(request_data["search"], "%m/%d/%Y")
+
+                    if request_data["criteria"] == "Contains":
+                        request_data =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date__contains":search_date.date()}
+                    elif request_data["criteria"] == "Greater than and Equals to":
+                        request_data =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date__gte":search_date.date()}
+                    elif request_data["criteria"] == "Equals to":
+                        request_data =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date":search_date.date()}
+            else :
+                if request_data["criteria"] == "Equals to":
+                    if request_data["name"] == "First Name":
+                        request_data_filter = {"first_name": request_data['search']}
+                    elif request_data["name"] == "Last Name":
+                        request_data_filter = {"last_name": request_data['search']}
+                    elif request_data["name"] == "Email Id":
+                        request_data_filter = {"email": request_data['search']}
+                 
+                elif request_data["criteria"] == "Contains":
+                    if request_data["name"] == "First Name":
+                        request_data_filter = {"first_name__contains": request_data['search']}
+                    elif request_data["name"] == "Last Name":
+                        request_data_filter = {"last_name__contains": request_data['search']}
+                    elif request_data["name"] == "Email Id":
+                        request_data_filter = {"email__contains": request_data['search']}
+
+            if request_data["year"] != "All":
+                request_data_filter["tax_filings__year__name"]=request_data["year"]
+                  
+            query_set = User.objects.filter(**request_data_filter).order_by("-created_at")#.exclude(role="ADMIN")
+            users_data = UserTaxFilingSerializer(query_set, many=True, context=request_data).data
+
+            context = users_data
+            status_flag = True
+            message = None
+            status_code = status.HTTP_200_OK
+            context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+            return Response(status=status_code, data= context)
+            
+        else:
+            context = None
+            status_flag = False
+            message = "Only Get and Post Method available"
+            status_code = status.HTTP_405_METHOD_NOT_ALLOWED
+            context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+            return Response(status=status_code, data= context)
+
+    except Exception as excepted_message:
+        print(excepted_message)
+        context = None
+        status_flag = False
+        message = str(excepted_message)
+        status_code = status.HTTP_400_BAD_REQUEST
+        context = {"data":context, "status_flag":status_flag, "status":status_code, "message":message}
+        return Response(status=status_code, data= context)

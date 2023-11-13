@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/v1/download_tax_docs/',download_tax_docs),
     path('api/v1/delete_tax_docs/',delete_tax_docs),
     path('api/v1/book_appointment/', book_appointment),
+    path('api/v1/update_appointment/', update_appointment),
     path('api/v1/appointment_details/', appointment_details),
     path('api/v1/delete_appointment/', delete_appointment),
     path('api/v1/make_referal/',make_referal),
