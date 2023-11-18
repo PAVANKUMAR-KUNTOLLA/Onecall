@@ -174,6 +174,23 @@ class Payment(models.Model):
 
         super(Payment, self).save(*args, **kwargs)
 
+def get_tax_returns_file_path(instance, filename):
+    return f'TaxReturns/U{instance.filing.user.id}_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}_{filename}'
+
+class TaxReturns(models.Model):
+    filing = models.ForeignKey("tax_services.TaxFiling", on_delete=models.CASCADE, null=True, blank=True)
+    file_name = models.FileField(null=True, blank=True, upload_to=get_tax_returns_file_path)
+    remarks = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        verbose_name = "Tax Returns"
+    
+    def __str__(self):
+        return f'Tax Returns of {self.filing.user.email} for Year {self.filing.year}'
+
 class TaxFiling(models.Model):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE)
     year = models.ForeignKey("tax_services.FinancialYear", on_delete=models.CASCADE)
@@ -183,6 +200,7 @@ class TaxFiling(models.Model):
     refund_type = models.CharField(max_length=255, choices=REFUND_CHOICES, null=True, blank=True)
     bank = models.ForeignKey("tax_services.Bank", on_delete=models.CASCADE, null=True, blank=True)
     tax_docs = models.FileField(null=True, blank=True, upload_to=get_file_path)
+    tax_returns = models.ManyToManyField("tax_services.TaxReturns")
     appointments = models.ManyToManyField("tax_services.Appointment")
     payments = models.ManyToManyField("tax_services.Payment")
     status = models.CharField(max_length=255, choices=FILING_STATUS_CHOICES, default="INITIATED")

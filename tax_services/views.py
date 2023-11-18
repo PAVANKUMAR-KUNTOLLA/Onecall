@@ -238,8 +238,8 @@ def personal_contact_details(request):
                             spouse_ins.gender = data["spouseGender"]
                         if spouse_ins.job_title != data["spouseOccupation"]:
                             spouse_ins.job_title = data["spouseOccupation"]
-                        if spouse_ins.status != data["spouseResidentialStatus"]:
-                            spouse_ins.status = data["spouseResidentialStatus"]
+                        if spouse_ins.residential_status != data["spouseResidentialStatus"]:
+                            spouse_ins.residential_status = data["spouseResidentialStatus"]
                         if spouse_ins.apply_for_itin != data["spouseApplyForItin"]:
                             spouse_ins.apply_for_itin = data["spouseApplyForItin"]
 
@@ -619,33 +619,66 @@ def upload_tax_docs(request):
             if request.FILES:
                 # Access the uploaded file from request.FILES
                 uploaded_file = request.FILES['upload']
+                if data["type"] == "docs":
+                    tax_filing_ins.tax_docs = uploaded_file
+                    tax_filing_ins.save()
+                elif data["type"] == "returns":
+                    tax_returns_ins = TaxReturns.objects.create(filing=tax_filing_ins, file_name=uploaded_file, remarks=data["remarks"])
+                    tax_returns_ins.save()
 
-                tax_filing_ins.tax_docs = uploaded_file
-                tax_filing_ins.save()
-                
+                    tax_filing_ins.tax_returns.add(tax_returns_ins.id)
+                    tax_filing_ins.save()
+                else:
+                    context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Type of Docs is Required"}
+                    return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
                 context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Upload Done Successfully"}
                 return Response(status=status.HTTP_200_OK, data= context)
             else:
                 return_dict = list()
 
                 # Return the file associated with tax_filing_ins.tax_docs
-                tax_docs = tax_filing_ins.tax_docs
-                if tax_docs:
-                    # Prepare the response data for the associated file
-                    file_name = tax_docs.name  # Get the file name
-                    file_size_in_bytes = os.path.getsize(tax_docs.path)
-                    file_size_kb = round(file_size_in_bytes / 1024, 2)
-                    file_size_mb = round(file_size_in_bytes / (1024 * 1024), 2)
-                    file_created_at = os.path.getctime(tax_docs.path)
-                    upload_time = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
+                if data["type"] == "docs":
+                    tax_docs = tax_filing_ins.tax_docs
+                    if tax_docs:
+                        # Prepare the response data for the associated file
+                        file_name = tax_docs.name  # Get the file name
+                        file_size_in_bytes = os.path.getsize(tax_docs.path)
+                        file_size_kb = round(file_size_in_bytes / 1024, 2)
+                        file_size_mb = round(file_size_in_bytes / (1024 * 1024), 2)
+                        file_created_at = os.path.getctime(tax_docs.path)
+                        upload_time = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
 
-                    each_file_dict = {
-                        "file_name": file_name.replace("TaxDocs/", ""),
-                        "upload_time": upload_time,
-                        "file_size": f'{file_size_kb} (KB)/{file_size_mb} (MB)'
-                    }
+                        each_file_dict = {
+                            "file_name": file_name.replace("TaxDocs/", ""),
+                            "upload_time": upload_time,
+                            "file_size": f'{file_size_kb} (KB)/{file_size_mb} (MB)'
+                        }
 
-                    return_dict.append( each_file_dict)
+                        return_dict.append( each_file_dict)
+
+                elif data["type"] == "returns" and tax_filing_ins.tax_returns:
+                    tax_returns = tax_filing_ins.tax_returns.all()
+
+                    if tax_returns:
+                        for each in tax_returns:
+                            # Prepare the response data for the associated file
+                            file_name = each.file_name.name  # Get the file name
+                            file_size_in_bytes = os.path.getsize(each.file_name.path)
+                            file_size_kb = round(file_size_in_bytes / 1024, 2)
+                            file_size_mb = round(file_size_in_bytes / (1024 * 1024), 2)
+                            file_created_at = os.path.getctime(each.file_name.path)
+                            upload_time = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
+
+                            each_file_dict = {
+                                "id":each.id,
+                                "file_name": file_name.replace("TaxReturns/", ""),
+                                "upload_time": upload_time,
+                                "remarks":each.remarks,
+                                "file_size": f'{file_size_kb} (KB)/{file_size_mb} (MB)'
+                            }
+
+                            return_dict.append( each_file_dict)
                     
                 context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
                 return Response(status=status.HTTP_200_OK, data= context)
@@ -733,9 +766,10 @@ def download_tax_docs(request):
     try:
         if request.method == "POST":
             file_name = data["file_name"]
-            if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs", file_name))):
+            file_parent_path = "TaxDocs" if data["type"] == "docs" else "TaxReturns"
+            if os.path.exists((os.path.join(MEDIA_ROOT, file_parent_path, file_name))):
                 # Reading the file that user has requested
-                with open(os.path.join(MEDIA_ROOT, "TaxDocs", file_name), 'rb') as f:
+                with open(os.path.join(MEDIA_ROOT, file_parent_path, file_name), 'rb') as f:
                     file_data = f.read()
 
                 # Determine the file's content type based on the file extension
@@ -782,8 +816,9 @@ def delete_tax_docs(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
             file_name = data["file_name"]
+            file_parent_path = "TaxDocs" if data["type"] == "docs" else "TaxReturns"
            
-            if os.path.exists((os.path.join(MEDIA_ROOT, "TaxDocs", file_name))):
+            if os.path.exists((os.path.join(MEDIA_ROOT, file_parent_path, file_name))):
                 
                 tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
@@ -791,9 +826,15 @@ def delete_tax_docs(request):
                     context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                     return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
 
-                os.remove(os.path.join(MEDIA_ROOT, "TaxDocs", file_name))
+                if data["type"] == "docs":
+                    tax_filing_ins.tax_docs = None
+                    os.remove(os.path.join(MEDIA_ROOT, file_parent_path, file_name))
 
-                tax_filing_ins.tax_docs = None
+                elif data["type"] == "returns":
+                    tax_returns_ins = TaxReturns.objects.get(id=data["file_id"])
+                    tax_filing_ins.tax_returns.remove(tax_returns_ins.id)
+                    tax_returns_ins.delete()
+
                 tax_filing_ins.save()
                 
                 context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Deleted Successfully"}

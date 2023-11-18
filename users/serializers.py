@@ -147,11 +147,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserTaxFilingSerializer(serializers.ModelSerializer):
     phone_no = serializers.SerializerMethodField()
-    appointment = serializers.SerializerMethodField()
+    filing = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', "last_name", 'email', "phone_no", "appointment")
+        fields = ('id', 'first_name', "last_name", 'email', "phone_no", "filing")
         
     def get_phone_no(self, instance):
         if instance.contact:
@@ -159,12 +159,12 @@ class UserTaxFilingSerializer(serializers.ModelSerializer):
         else:
             return ""
 
-    def get_appointment(self, instance):
+    def get_filing(self, instance):
         if Appointment.objects.filter(filing__user__id=instance.id, status="BOOKED").exists():
             appointment_ins = Appointment.objects.get(filing__user__id=instance.id, status="BOOKED")
-            return {"id":appointment_ins.id, "date":datetime.strftime(appointment_ins.start_time, "%d %b %Y"), "time":datetime.strftime(appointment_ins.start_time, "%H:%M")}
+            return {"taxFilingId":appointment_ins.filing.id, "taxFilingYear":appointment_ins.filing.year.name, "appointmentId":appointment_ins.id, "appointmentDate":datetime.strftime(appointment_ins.start_time, "%d %b %Y"), "appointmentTime":datetime.strftime(appointment_ins.start_time, "%H:%M")}
         else:
-            return {"id":"", "date":"", "time":""}      
+            return {"taxFilingId":"", "taxFilingYear":"", "appointmentId":"", "appointmentDate":"", "appointmentTime":""}      
 
 class AssociateSerializer(serializers.ModelSerializer):
     first_name = serializers.SerializerMethodField()

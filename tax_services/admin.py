@@ -30,6 +30,10 @@ class IncomeAdmin(admin.ModelAdmin):
 class DependantAdmin(admin.ModelAdmin):
     list_display = ['filing', 'name', 'relationship', 'visa_type']
 
+@admin.register(TaxReturns)
+class TaxReturnsAdmin(admin.ModelAdmin):
+    list_display = ['filing', 'file_name', 'created_at', 'updated_at']
+
 @admin.register(Bank)
 class BankAdmin(admin.ModelAdmin):
     list_display = ['filing', 'name', 'ownership', 'created_at']

@@ -32,6 +32,10 @@ def signup(request):
                 data=data, context={'request': request})
             signup_serializer.is_valid(raise_exception=True)
 
+            if data["role"] == "ADMIN" and not request.user.is_superuser:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
             if data["role"] == "CLIENT" and data["passwordConfirmation"] != data["password"]:
                 context = None
                 status_flag = False
@@ -367,11 +371,11 @@ def users(request):
                     search_date = datetime.strptime(request_data["search"], "%m/%d/%Y")
 
                     if request_data["criteria"] == "Contains":
-                        request_data =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date__contains":search_date.date()}
+                        request_data_filter =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date__contains":search_date.date()}
                     elif request_data["criteria"] == "Greater than and Equals to":
-                        request_data =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date__gte":search_date.date()}
+                        request_data_filter =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date__gte":search_date.date()}
                     elif request_data["criteria"] == "Equals to":
-                        request_data =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date":search_date.date()}
+                        request_data_filter =  {"tax_filings__isnull":False, "tax_filings__appointments__isnull":False, "tax_filings__appointments__status":"BOOKED", "tax_filings__appointments__start_time__date":search_date.date()}
             else :
                 if request_data["criteria"] == "Equals to":
                     if request_data["name"] == "First Name":
@@ -390,7 +394,7 @@ def users(request):
                         request_data_filter = {"email__contains": request_data['search']}
 
             if request_data["year"] != "All":
-                request_data_filter["tax_filings__year__name"]=request_data["year"]
+                request_data_filter.update({"tax_filings__isnull":False, "tax_filings__year__name":request_data["year"]})
                   
             query_set = User.objects.filter(**request_data_filter).order_by("-created_at")#.exclude(role="ADMIN")
             users_data = UserTaxFilingSerializer(query_set, many=True, context=request_data).data
