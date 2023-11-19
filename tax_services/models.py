@@ -5,6 +5,8 @@ from users.models import GENDER_CHOICES
 
 VISA_TYPE_CHOICES = [("H4", "H4"), ("US Citizen", "US Citizen"), ("L2", "L2"), ("Green Card", "Green Card"), ("Other", "Other")]
 REFUND_CHOICES = [("DIRECT DEPOSIT INTO MY BANK ACCOUNT", "DIRECT DEPOSIT INTO MY BANK ACCOUNT"), ("PAPER CHECK", "PAPER CHECK")]
+REFUND_SERVICE_TYPES=[("REGULAR", "REGULAR")]
+REFUND_TYPES = [("FEDERAL REFUND","FEDERAL REFUND"),("FEDERAL AMENDMENT", "FEDERAL AMENDMENT"), ("STATE AMENDMENT", "STATE AMENDMENT"), ("FBAR TAX PAYER", "FBAR TAX PAYER"), ("FBAR SPOUSE", "FBAR SPOUSE"), ("FBAR COMBINED", "FBAR COMBINED"), ("CITY FILING 1", "CITY FILING 1"), ("CITY FILING 2", "CITY FILING 2"), ("CITY FILING 3", "CITY FILING 3"), ("CITY FILING 4", "CITY FILING 4"), ("EXTENSION FILING", "EXTENSION FILING"), ("OTHER", "OTHER"), ("ADVANCE PAYMENT", "ADVANCE PAYMENT"), ("REFERRAL DISCOUNT","REFERRAL DISCOUNT") ]
 OWNERSHIP_CHOICES = [("TAXPAYER/SPOUSE", "TAXPAYER/SPOUSE"), ("JOINT", "JOINT")]
 BANK_ACCOUNT_TYPE = [("SAVINGS", "SAVINGS"), ("CHECKING", "CHECKING")]
 APPOINTMENT_STATUS_CHOICES = [("BOOKED", "BOOKED"), ("COMPLETED", "COMPLETED"), ("CANCELLED", "CANCELLED")]
@@ -191,6 +193,44 @@ class TaxReturns(models.Model):
     def __str__(self):
         return f'Tax Returns of {self.filing.user.email} for Year {self.filing.year}'
 
+class Refund(models.Model):
+    filing = models.ForeignKey("tax_services.TaxFiling", on_delete=models.CASCADE, null=True, blank=True)
+    service_type = models.CharField(max_length=255, choices=REFUND_SERVICE_TYPES, blank=True, null=True)
+    refund_type = models.CharField(max_length=255, choices=REFUND_TYPES, blank=True, null=True)
+    standard_refund = models.FloatField(default=0, blank=True, null=True)
+    standard_fee = models.FloatField(default=0, blank=True, null=True)
+    itemized_refund = models.FloatField(default=0, blank=True, null=True)
+    itemized_fee = models.FloatField(default=0, blank=True, null=True)
+    discount = models.FloatField(default=0, blank=True, null=True)
+    paid_advance = models.FloatField(default=0, blank=True, null=True)
+    max_itemized_refund = models.FloatField(default=0, blank=True, null=True)
+    max_itemized_fee = models.FloatField(default=0, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        verbose_name = "Refund"
+    
+    def __str__(self):
+        return f'Refunds of {self.filing.user.email} for Year {self.filing.year}'
+
+class Message(models.Model):
+    filing = models.ForeignKey("tax_services.TaxFiling", on_delete=models.CASCADE, null=True, blank=True)
+    message = models.TextField(blank=True, null=True)
+    by = models.ForeignKey("users.User", on_delete=models.CASCADE, null=True, blank=True, related_name="message_by")
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    def __str__(self):
+        return self.filing.user.email
+
+    def save(self, *args, **kwargs):
+        user = get_current_user()
+        super(Message, self).save(*args, **kwargs)
+
+
 class TaxFiling(models.Model):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE)
     year = models.ForeignKey("tax_services.FinancialYear", on_delete=models.CASCADE)
@@ -203,6 +243,7 @@ class TaxFiling(models.Model):
     tax_returns = models.ManyToManyField("tax_services.TaxReturns")
     appointments = models.ManyToManyField("tax_services.Appointment")
     payments = models.ManyToManyField("tax_services.Payment")
+    refunds = models.ManyToManyField("tax_services.Refund")
     status = models.CharField(max_length=255, choices=FILING_STATUS_CHOICES, default="INITIATED")
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

@@ -1009,6 +1009,137 @@ def delete_appointment(request):
         context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
         return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def create_refund(request):
+    request_data = request.data.copy()
+    try:
+        if request.method == "POST":
+
+            if not request.user.is_admin:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
+            for index, data in enumerate(request_data):
+                if "year" not in data.keys() or data["year"] == None:
+                    context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Year is Required"}
+                    return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+                
+                if not TaxFiling.objects.filter(user__id=data["id"], year__name=data["year"]).exists():
+                    context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":f'TaxFiling for year {data["year"]} of this User is not Found'}
+                    return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+                
+                tax_filing_ins = TaxFiling.objects.get(user__id=data["id"], year__name=data["year"])
+                refund_ins = Refund.objects.create(filing=tax_filing_ins, service_type=data["service_type"], refund_type=data["refund_type"], standard_refund=data["standard_refund"], standard_fee=data["standard_fee"], itemized_refund=data["itemized_refund"], itemized_fee=data["itemized_fee"], discount=data["discount"], paid_advance=data["paid_advance"], max_itemized_refund=data["max_itemized_refund"], max_itemized_fee=data["max_itemized_fee"])
+                refund_ins.save()
+                tax_filing_ins.refunds.add(refund_ins.id)
+                tax_filing_ins.save()
+            
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Created Successfully"}
+            return Response(status=status.HTTP_200_OK, data= context)
+            
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def refunds(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"User Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            if not (request.user.id ==  data["id"] or request.user.is_admin):
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
+            data = Refund.objects.filter(filing__user__id=data["id"]).values()
+
+            context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+           
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def create_message(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+
+            if not request.user.is_admin:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+            message_ins = Message.objects.create(filing=tax_filing_ins, message=data["message"])
+            if User.objects.filter(email=data["by"]).exists():
+                message_ins.by = User.obejcts.get(email=data["email"])
+            message_ins.save()
+            
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Created Successfully"}
+            return Response(status=status.HTTP_200_OK, data= context)
+            
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def messages(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
+            data = Message.objects.filter(filing__id=tax_filing_ins.id)
+
+            context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+           
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -1030,7 +1161,7 @@ def referal_details(request):
             return Response(status=status.HTTP_200_OK, data= context)
             
         else:
-            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET Method Available"}
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
     except Exception as excepted_message:
         print(str(excepted_message))

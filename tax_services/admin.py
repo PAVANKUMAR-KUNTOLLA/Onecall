@@ -46,6 +46,14 @@ class AppointmentAdmin(admin.ModelAdmin):
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ['filing', 'amount', 'mode_of_payment', 'status']
 
+@admin.register(Refund)
+class RefundAdmin(admin.ModelAdmin):
+    list_display = ['filing', 'service_type', 'refund_type', 'standard_refund', 'standard_fee', 'itemized_refund', 'itemized_fee', 'discount', 'paid_advance', 'max_itemized_refund', 'max_itemized_fee']
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ['filing', 'message', 'by']
+
 @admin.register(Referal)
 class ReferalAdmin(admin.ModelAdmin):
     list_display = ['referred_by', 'first_name', 'last_name', 'email', 'contact_no']
