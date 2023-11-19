@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.validators import validate_email
 from rest_framework import serializers
 from users.models import User, Associate
-from tax_services.models import Appointment
+from tax_services.models import TaxFiling, Appointment
 from datetime import datetime
 
 class SignupSerializer(serializers.Serializer):
@@ -160,9 +160,14 @@ class UserTaxFilingSerializer(serializers.ModelSerializer):
             return ""
 
     def get_filing(self, instance):
-        if Appointment.objects.filter(filing__user__id=instance.id, status="BOOKED").exists():
-            appointment_ins = Appointment.objects.get(filing__user__id=instance.id, status="BOOKED")
-            return {"taxFilingId":appointment_ins.filing.id, "taxFilingYear":appointment_ins.filing.year.name, "appointmentId":appointment_ins.id, "appointmentDate":datetime.strftime(appointment_ins.start_time, "%d %b %Y"), "appointmentTime":datetime.strftime(appointment_ins.start_time, "%H:%M")}
+        if TaxFiling.objects.filter(user__id=instance.id).exists():
+            if Appointment.objects.filter(filing__user__id=instance.id, status="BOOKED").exists():
+                appointment_ins = Appointment.objects.get(filing__user__id=instance.id, status="BOOKED")
+                return {"taxFilingId":appointment_ins.filing.id, "taxFilingYear":appointment_ins.filing.year.name, "appointmentId":appointment_ins.id, "appointmentDate":datetime.strftime(appointment_ins.start_time, "%d %b %Y"), "appointmentTime":datetime.strftime(appointment_ins.start_time, "%H:%M")}
+            else:
+                tax_filing_ins = TaxFiling.objects.get(user__id=instance.id)
+                return {"taxFilingId":tax_filing_ins.id, "taxFilingYear":tax_filing_ins.year.name, "appointmentId":"", "appointmentDate":"", "appointmentTime":""}      
+
         else:
             return {"taxFilingId":"", "taxFilingYear":"", "appointmentId":"", "appointmentDate":"", "appointmentTime":""}      
 
