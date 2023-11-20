@@ -266,7 +266,7 @@ class TaxFiling(models.Model):
 
         if not (user.is_admin or user.is_client and user.id == self.user.id):
             raise Exception("UnAuthorized")
-        super(TaxFiling, self).save(*args, **kwargs)
+        super(TaxFiling, self).delete(*args, **kwargs)
 
 class Referal(models.Model):
     referred_by = models.ForeignKey("users.User", on_delete=models.CASCADE)
