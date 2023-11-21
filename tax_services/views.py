@@ -54,6 +54,9 @@ def my_services(request):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Name of the Tax Year Service is Required"}
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
 
+            if TaxFiling.objects.filter(user__id=request.user.id, year__name=data["year"]).exists():
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message": f'Tax Filing Service for year {data["year"]} is already Selected'}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
             year = FinancialYear.objects.get(name=data["year"])
             user = User.objects.get(id=request.user.id)
             tax_filing_ins = TaxFiling.objects.create(user=user, year=year)
