@@ -3,6 +3,9 @@ from .views import *
 
 urlpatterns = [
     path('', index),
+    path('services', services),
+    path('services_details', services_details),
+    path('appointment', appointment),
     path('app/home/', application),
     path('api/v1/tax_filing/', tax_filing),
     path('api/v1/personal_contact_details/', personal_contact_details),
