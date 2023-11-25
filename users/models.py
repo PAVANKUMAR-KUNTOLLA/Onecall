@@ -47,7 +47,7 @@ class User(AbstractUser):
     dob = models.DateField(null=True, blank=True)
     role = models.CharField(max_length=255, choices=ROLE_CHOICES)
     ssn = models.CharField(unique=True, max_length=255, null=True, blank=True)
-    gender = models.CharField(max_length=255, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=255, choices=GENDER_CHOICES, null=True, blank=True)
     job_title = models.CharField(max_length=555, null=True, blank=True)
     residential_status = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=255, choices=MARITAL_CHOICES, null=True, blank=True)

@@ -7,7 +7,7 @@ VISA_TYPE_CHOICES = [("H4", "H4"), ("US Citizen", "US Citizen"), ("L2", "L2"), (
 REFUND_CHOICES = [("DIRECT DEPOSIT INTO MY BANK ACCOUNT", "DIRECT DEPOSIT INTO MY BANK ACCOUNT"), ("PAPER CHECK", "PAPER CHECK")]
 REFUND_SERVICE_TYPES=[("REGULAR", "REGULAR")]
 REFUND_TYPES = [("FEDERAL REFUND","FEDERAL REFUND"),("FEDERAL AMENDMENT", "FEDERAL AMENDMENT"), ("STATE AMENDMENT", "STATE AMENDMENT"), ("FBAR TAX PAYER", "FBAR TAX PAYER"), ("FBAR SPOUSE", "FBAR SPOUSE"), ("FBAR COMBINED", "FBAR COMBINED"), ("CITY FILING 1", "CITY FILING 1"), ("CITY FILING 2", "CITY FILING 2"), ("CITY FILING 3", "CITY FILING 3"), ("CITY FILING 4", "CITY FILING 4"), ("EXTENSION FILING", "EXTENSION FILING"), ("OTHER", "OTHER"), ("ADVANCE PAYMENT", "ADVANCE PAYMENT"), ("REFERRAL DISCOUNT","REFERRAL DISCOUNT") ]
-OWNERSHIP_CHOICES = [("TAXPAYER/SPOUSE", "TAXPAYER/SPOUSE"), ("JOINT", "JOINT")]
+OWNERSHIP_CHOICES = [("TAXPAYER", "TAXPAYER"),("SPOUSE", "SPOUSE"), ("JOINT", "JOINT")]
 BANK_ACCOUNT_TYPE = [("SAVINGS", "SAVINGS"), ("CHECKING", "CHECKING")]
 APPOINTMENT_STATUS_CHOICES = [("BOOKED", "BOOKED"), ("COMPLETED", "COMPLETED"), ("CANCELLED", "CANCELLED")]
 PAYMENT_MODES = [("INTERNET BANKING", "INTERNET BANKING"), ("CREDIT/DEBIT CARD", ("CREDIT/DEBIT CARD")), ("PAYPAL", "PAYPAL")]
@@ -68,17 +68,17 @@ class Income(models.Model):
 
 class Dependant(models.Model):
     filing = models.ForeignKey("tax_services.TaxFiling", on_delete=models.CASCADE, null=True, blank=True, related_name="filer_dependants")
-    first_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255, null=True, blank=True)
     middle_name = models.CharField(max_length=255, null=True, blank=True)
-    last_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
     dob = models.DateField(null=True, blank=True)
-    relationship = models.CharField(max_length=255)
+    relationship = models.CharField(max_length=255, null=True, blank=True)
     country_of_stay = models.CharField(max_length=255, null=True, blank=True)
     stay_period = models.IntegerField(default=0)
-    visa_type = models.CharField(max_length=255, choices=VISA_TYPE_CHOICES)
+    visa_type = models.CharField(max_length=255, choices=VISA_TYPE_CHOICES, null=True, blank=True)
     ssn = models.CharField(max_length=255, null=True, blank=True)
     email = models.CharField(max_length=255, null=True, blank=True)
-    gender = models.CharField(max_length=255, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=255, choices=GENDER_CHOICES, null=True, blank=True)
     apply_for_itin = models.BooleanField(default=False)
     job_title = models.CharField(max_length=555, null=True, blank=True)
 
@@ -140,7 +140,7 @@ class Appointment(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        return f'Appointment for {self.filing.user.email} on {self.start_time.strftime("%Y-%m-%d")}'
+        return f'Appointment for {self.filing.user.email} on {self.start_time.strftime("%m/%d/%Y")}'
 
     def save(self, *args, **kwargs):
         user = get_current_user()

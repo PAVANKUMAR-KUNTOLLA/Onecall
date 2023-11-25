@@ -1,5 +1,5 @@
 from .models import *
-
+from datetime import datetime
 def get_consolidated_data(tax_filing_ins):
     return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{}, "bankDetails":{}, "dependantDetails":list(), "spouseDetails":{}}
 
@@ -9,7 +9,7 @@ def get_consolidated_data(tax_filing_ins):
     return_dict["personalDetails"]["middleName"]= tax_filing_ins.user.middle_name 
     return_dict["personalDetails"]["lastName"]=tax_filing_ins.user.last_name
     return_dict["personalDetails"]["ssn"]= tax_filing_ins.user.ssn
-    return_dict["personalDetails"]["dateOfBirth"]= tax_filing_ins.user.dob
+    return_dict["personalDetails"]["dateOfBirth"]=  datetime.strftime(tax_filing_ins.user.dob, "%m/%d/%Y") if tax_filing_ins.user.dob else ""
     return_dict["personalDetails"]["gender"]= tax_filing_ins.user.gender
     return_dict["personalDetails"]["occupation"]= tax_filing_ins.user.job_title
     return_dict["personalDetails"]["residentialStatus"]= tax_filing_ins.user.residential_status
@@ -81,7 +81,7 @@ def get_consolidated_data(tax_filing_ins):
         return_dict["spouseDetails"]["spouseLastName"]= tax_filing_ins.user.spouse.last_name
         return_dict["spouseDetails"]["spouseSsnOrItin"]= tax_filing_ins.user.spouse.ssn
         return_dict["spouseDetails"]["spouseApplyForItin"]=tax_filing_ins.user.spouse.apply_for_itin
-        return_dict["spouseDetails"]["spouseDateOfBirth"]= tax_filing_ins.user.spouse.dob
+        return_dict["spouseDetails"]["spouseDateOfBirth"]= datetime.strftime(tax_filing_ins.user.spouse.dob, "%m/%d/%Y")  if tax_filing_ins.user.spouse.dob else ""
         return_dict["spouseDetails"]["spouseGender"]= tax_filing_ins.user.spouse.gender
         return_dict["spouseDetails"]["spouseOccupation"]= tax_filing_ins.user.spouse.job_title
         return_dict["spouseDetails"]["spouseResidentialStatus"]= tax_filing_ins.user.spouse.residential_status
@@ -104,15 +104,15 @@ def get_consolidated_data(tax_filing_ins):
         return_dict["providedLivingSupport"]= False
 
     dependants = tax_filing_ins.dependants.all()
-    each_dict = dict()
     for dependant_ins in dependants:
+        each_dict = dict()
         each_dict["id"] = dependant_ins.id
         each_dict["additionalFirstName"]= dependant_ins.first_name
         each_dict["additionalMiddleInitial"]= dependant_ins.middle_name
         each_dict["additionalLastName"]= dependant_ins.last_name
         each_dict["additionalSsnOrItin"]= dependant_ins.ssn
         each_dict["additionalApplyForItin"]= dependant_ins.apply_for_itin
-        each_dict["additionalDateOfBirth"]= dependant_ins.dob
+        each_dict["additionalDateOfBirth"]= datetime.strftime(dependant_ins.dob, "%m/%d/%Y") if dependant_ins.dob else ""
         each_dict["additionalGender"]= dependant_ins.gender
         each_dict["additionalOccupation"]= dependant_ins.job_title
         each_dict["additionalVisaType"]= dependant_ins.visa_type

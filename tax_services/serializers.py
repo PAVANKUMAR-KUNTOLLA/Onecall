@@ -23,9 +23,9 @@ class FinancialYearSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "start_date", "end_date", "is_active")
         
     def get_start_date(self, instance):
-        return instance.start_date.strftime("%Y-%m-%d")
+        return instance.start_date.strftime("%m/%d/%Y")
     def get_end_date(self, instance):
-        return instance.end_date.strftime("%Y-%m-%d")
+        return instance.end_date.strftime("%m/%d/%Y")
 
 class AppointmentSerializer(serializers.ModelSerializer):
     filing = serializers.SerializerMethodField()

@@ -33,6 +33,9 @@ def index(request):
 def appointment(request):
     return render(request, 'appointment.html')
 
+def contact_us(request):
+    return render(request, 'contact-us.html')
+
 def services(request):
     return render(request, 'services.html')
 
@@ -153,7 +156,7 @@ def personal_contact_details(request):
                 if user_ins.ssn !=  data["ssn"]:
                     user_ins.ssn =  data["ssn"]
                 if user_ins.dob  != data["dateOfBirth"]:
-                    user_ins.dob = datetime.datetime.strptime(data["dateOfBirth"], "%Y-%m-%d")
+                    user_ins.dob = datetime.datetime.strptime(data["dateOfBirth"], "%m/%d/%Y")
                 if user_ins.gender !=  data["gender"]:
                     user_ins.gender =  data["gender"]
                 if user_ins.job_title != data["occupation"]:
@@ -215,20 +218,29 @@ def personal_contact_details(request):
                         if User.objects.filter(email=data["spouseEmail"]).exists():
                             spouse_ins = User.objects.get(email=data["spouseEmail"])
                         else:
-                            spouse_ins = User.objects.create(
-                                first_name = data["spouseFirstName"],
-                                middle_name = data["spouseMiddleInitial"],
-                                last_name = data["spouseLastName"],
-                                ssn = data["spouseSsnOrItin"],
-                                dob = datetime.datetime.strptime(data["spouseDateOfBirth"], "%Y-%m-%d"),
-                                gender = data["spouseGender"],
-                                job_title = data["spouseOccupation"],
-                                residential_status = data["spouseResidentialStatus"],
-                                email = data["spouseEmail"],
-                                apply_for_itin=data["spouseApplyForItin"],
-                                role="CLIENT",
-                                status="MARRIED")
-                            spouse_ins.set_password="welcome"
+                            attribute_mapping = {
+                                "first_name": "spouseFirstName",
+                                "middle_name": "spouseMiddleInitial",
+                                "last_name": "spouseLastName",
+                                "ssn": "spouseSsnOrItin",
+                                "dob": "spouseDateOfBirth",
+                                "gender": "spouseGender",
+                                "job_title": "spouseOccupation",
+                                "email": "spouseEmail",
+                                "apply_for_itin": "spouseApplyForItin",
+                                "residential_status": "spouseVisaType",
+                            }
+
+                            # Remove the fields with None values from the request_data and map the attribute names
+                            create_fields_spouse = {
+                                model_attr: datetime.datetime.strptime(data[request_attr], "%m/%d/%Y") if request_attr == "spouseDateOfBirth" and data[request_attr] is not None else data[request_attr]
+                                for model_attr, request_attr in attribute_mapping.items() 
+                                if data[request_attr] is not None
+                            }
+
+                            # Creating the Dependant object with the non-None fields
+                            spouse_ins = User.objects.create(**create_fields_dependant, role="CLIENT", status="MARRIED")
+                            spouse_ins.set_password("welcome")
                             spouse_ins.save()
                         user_ins.spouse = spouse_ins
                         user_ins.save()
@@ -242,10 +254,8 @@ def personal_contact_details(request):
                             spouse_ins.last_name = data["spouseLastName"]
                         if spouse_ins.ssn != data["spouseSsnOrItin"]:
                             spouse_ins.ssn = data["spouseSsnOrItin"]
-                        # if data["applyForItin"] == False: 
-                        #     spouse_ins.applyForItin = False
                         if spouse_ins.dob != data["spouseDateOfBirth"]:
-                            spouse_ins.dob = datetime.datetime.strptime(data["spouseDateOfBirth"], "%Y-%m-%d")
+                            spouse_ins.dob = datetime.datetime.strptime(data["spouseDateOfBirth"], "%m/%d/%Y")
                         if spouse_ins.gender != data["spouseGender"]:
                             spouse_ins.gender = data["spouseGender"]
                         if spouse_ins.job_title != data["spouseOccupation"]:
@@ -255,55 +265,7 @@ def personal_contact_details(request):
                         if spouse_ins.apply_for_itin != data["spouseApplyForItin"]:
                             spouse_ins.apply_for_itin = data["spouseApplyForItin"]
 
-                        spouse_ins.save() 
-            
-                if data["isNewDependant"] : #or any([data[each] !=None and data[each] !=False for each in ["additionalFirstName", "additionalMiddleInitial", "additionalLastName", "additionalSsnOrItin", "additionalDateOfBirth", "additionalGender", "additionalOccupation", "additionalEmail", "additionalApplyForItin", "additionalStayCount", "additionalRelationship", "additionalVisaType"]])
-                    if Dependant.objects.filter(filing__id=tax_filing_ins.id, ssn=data["additionalSsnOrItin"]).exists():
-                        dependant_ins = Dependant.objects.get(filing__id=tax_filing_ins.id, ssn=data["additionalSsnOrItin"])
-                        if dependant_ins.first_name != data["additionalFirstName"]:
-                            dependant_ins.first_name = data["additionalFirstName"]
-                        if dependant_ins.middle_name != data["additionalMiddleInitial"]:
-                            dependant_ins.middle_name = data["additionalMiddleInitial"]
-                        if dependant_ins.last_name != data["additionalLastName"]:
-                            dependant_ins.last_name = data["additionalLastName"]
-                        if dependant_ins.ssn != data["additionalSsnOrItin"]:
-                            dependant_ins.ssn = data["additionalSsnOrItin"]
-                        if dependant_ins.dob != data["additionalDateOfBirth"]:
-                            dependant_ins.dob = datetime.datetime.strptime(data["additionalDateOfBirth"], "%Y-%m-%d")
-                        if dependant_ins.gender != data["additionalGender"]:
-                            dependant_ins.gender = data["additionalGender"]
-                        if dependant_ins.job_title != data["additionalOccupation"]:
-                            dependant_ins.job_title = data["additionalOccupation"]
-                        if dependant_ins.email != data["additionalEmail"]:
-                            dependant_ins.email = data["additionalEmail"]
-                        if dependant_ins.apply_for_itin != data["additionalApplyForItin"]:
-                            dependant_ins.apply_for_itin = data["additionalApplyForItin"]
-                        if dependant_ins.relationship != data["additionalRelationship"]:
-                            dependant_ins.relationship =data["additionalRelationship"]
-                        if dependant_ins.stay_period != data["additionalStayCount"]:
-                            dependant_ins.stay_period = data["additionalStayCount"]
-                        if dependant_ins.visa_type != data["additionalVisaType"]:
-                            dependant_ins.visa_type = data["additionalVisaType"]    
-                        dependant_ins.save()
-                    else:
-                        dependant_ins = Dependant.objects.create(
-                                filing=tax_filing_ins,
-                                first_name=data["additionalFirstName"],
-                                middle_name=data["additionalMiddleInitial"],
-                                last_name=data["additionalLastName"],
-                                ssn=data["additionalSsnOrItin"],
-                                dob=datetime.datetime.strptime(data["additionalDateOfBirth"], "%Y-%m-%d"),
-                                gender=data["additionalGender"],
-                                job_title=data["additionalOccupation"],
-                                email=data["additionalEmail"],
-                                apply_for_itin=data["additionalApplyForItin"],
-                                relationship=data["additionalRelationship"],
-                                stay_period=data["additionalStayCount"],
-                                visa_type=data["additionalVisaType"]
-                            )
-                    dependant_ins.save()
-                    tax_filing_ins.dependants.add(dependant_ins.id)
-                    tax_filing_ins.save()
+                        spouse_ins.save()
         
                 if tax_filing_ins.income:
                     if data["taxFiledLastYear"] is not None and data["taxFiledLastYear"] != tax_filing_ins.income.filed_taxes_last_year:
@@ -353,6 +315,98 @@ def spouse_details(request):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
+def add_dependant(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+
+            for key, value in data.items():
+                if value == "":
+                    data[key] = None
+        
+            if data["additionalSsnOrItin"] and Dependant.objects.filter(filing__id=tax_filing_ins.id, ssn=data["additionalSsnOrItin"]).exists():
+                dependant_ins = Dependant.objects.get(filing__id=tax_filing_ins.id, ssn=data["additionalSsnOrItin"])
+                update_fields = {}
+
+                if data["additionalFirstName"] is not None and dependant_ins.first_name != data["additionalFirstName"]:
+                    update_fields['first_name'] = data["additionalFirstName"]
+                if data["additionalMiddleInitial"] is not None and dependant_ins.middle_name != data["additionalMiddleInitial"]:
+                    update_fields['middle_name'] = data["additionalMiddleInitial"]
+                if data["additionalLastName"] is not None and dependant_ins.last_name != data["additionalLastName"]:
+                    update_fields['last_name'] = data["additionalLastName"]
+                if data["additionalSsnOrItin"] is not None and dependant_ins.ssn != data["additionalSsnOrItin"]:
+                    update_fields['ssn'] = data["additionalSsnOrItin"]
+                if data["additionalDateOfBirth"] is not None and dependant_ins.dob != datetime.datetime.strptime(data["additionalDateOfBirth"], "%m/%d/%Y"):
+                    update_fields['dob'] = datetime.datetime.strptime(data["additionalDateOfBirth"], "%m/%d/%Y")
+                if data["additionalGender"] is not None and dependant_ins.gender != data["additionalGender"]:
+                    update_fields['gender'] = data["additionalGender"]
+                if data["additionalOccupation"] is not None and dependant_ins.job_title != data["additionalOccupation"]:
+                    update_fields['job_title'] = data["additionalOccupation"]
+                if data["additionalEmail"] is not None and dependant_ins.email != data["additionalEmail"]:
+                    update_fields['email'] = data["additionalEmail"]
+                if data["additionalApplyForItin"] is not None and dependant_ins.apply_for_itin != data["additionalApplyForItin"]:
+                    update_fields['apply_for_itin'] = data["additionalApplyForItin"]
+                if data["additionalRelationship"] is not None and dependant_ins.relationship != data["additionalRelationship"]:
+                    update_fields['relationship'] = data["additionalRelationship"]
+                if data["additionalStayCount"] is not None and dependant_ins.stay_period != data["additionalStayCount"]:
+                    update_fields['stay_period'] = data["additionalStayCount"]
+                if data["additionalVisaType"] is not None and dependant_ins.visa_type != data["additionalVisaType"]:
+                    update_fields['visa_type'] = data["additionalVisaType"]
+
+                if update_fields:
+                    dependant_ins.__dict__.update(update_fields)
+                    dependant_ins.save()
+            else:
+                attribute_mapping = {
+                    "first_name": "additionalFirstName",
+                    "middle_name": "additionalMiddleInitial",
+                    "last_name": "additionalLastName",
+                    "ssn": "additionalSsnOrItin",
+                    "dob": "additionalDateOfBirth",
+                    "gender": "additionalGender",
+                    "job_title": "additionalOccupation",
+                    "email": "additionalEmail",
+                    "apply_for_itin": "additionalApplyForItin",
+                    "relationship": "additionalRelationship",
+                    "stay_period": "additionalStayCount",
+                    "visa_type": "additionalVisaType",
+                }
+
+                # Remove the fields with None values from the request_data and map the attribute names
+                create_fields_dependant = {
+                    model_attr: datetime.datetime.strptime(data[request_attr], "%m/%d/%Y") if request_attr == "additionalDateOfBirth" and data[request_attr] is not None else data[request_attr]
+                    for model_attr, request_attr in attribute_mapping.items() 
+                    if data[request_attr] is not None
+                }
+
+                # Creating the Dependant object with the non-None fields
+                dependant_ins = Dependant.objects.create(filing=tax_filing_ins, **create_fields_dependant)
+                dependant_ins.save()
+                tax_filing_ins.dependants.add(dependant_ins.id)
+                tax_filing_ins.save()
+
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Success"}
+            return Response(status=status.HTTP_200_OK, data= context)
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def dependant_details(request):
     data = request.data.copy()
     try:
@@ -369,8 +423,9 @@ def dependant_details(request):
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
             return_dict = list()
             dependants = tax_filing_ins.dependants.all()
-            each_dict = dict()
+            
             for dependant_ins in dependants:
+                each_dict = dict()
                 each_dict["id"] = dependant_ins.id
                 each_dict["additionalFirstName"]= dependant_ins.first_name
                 each_dict["additionalMiddleInitial"]= dependant_ins.middle_name
@@ -384,7 +439,6 @@ def dependant_details(request):
                 each_dict["additionalEmail"]= dependant_ins.email
                 each_dict["additionalRelationship"]= dependant_ins.relationship
                 each_dict["additionalStayCount"]= dependant_ins.stay_period
-
                 return_dict.append(each_dict)
 
             context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
@@ -919,7 +973,7 @@ def book_appointment(request):
             start_time = data["time"]
 
             # Parse the start time and date
-            start_datetime = datetime.datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+            start_datetime = datetime.datetime.strptime(f"{start_date} {start_time}", "%m/%d/%Y %H:%M")
 
             # Calculate the end time by adding 30 minutes
             end_datetime = start_datetime + datetime.timedelta(minutes=30)
