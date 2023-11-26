@@ -3247,7 +3247,7 @@ Page Banner Area Style
   background-size: cover;
   position: relative;
   z-index: 1;
-  background-image: url(../images/page-bg/page-bg-1.jpg);
+  background-image: url(../images/banner/services_innerbanner.png);
 }
 
 .page-banner-area::before {
@@ -3277,7 +3277,7 @@ Page Banner Area Style
 }
 
 .page-banner-area.bg-1 {
-  background-image: url(../images/page-bg/page-bg-1.jpg);
+  background-image: url(../images/banner/services_innerbanner.png);
 }
 
 .page-banner-content h2 {

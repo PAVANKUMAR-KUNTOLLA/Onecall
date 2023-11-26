@@ -39,8 +39,14 @@ def contact_us(request):
 def services(request):
     return render(request, 'services.html')
 
-def services_details(request):
-    return render(request, 'services-details.html')
+def tax_preparation_services(request):
+    return render(request, 'tax-preparation-services.html')
+
+def tax_planning_services(request):
+    return render(request, 'tax-planning-services.html')
+
+def business_consulting_services(request):
+    return render(request, 'business-consulting-services.html')
 
 def application(request):
     return render(request, 'index.html')
