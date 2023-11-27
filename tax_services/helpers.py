@@ -1,7 +1,7 @@
 from .models import *
 from datetime import datetime
 def get_consolidated_data(tax_filing_ins):
-    return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{}, "bankDetails":{}, "dependantDetails":list(), "spouseDetails":{}}
+    return_dict = {"personalDetails":{}, "contactDetails":{}, "incomeDetails":{"otherIncomeDetails":[]}, "bankDetails":{}, "dependantDetails":list(), "spouseDetails":{}}
 
     #// Personal Details
     return_dict["personalDetails"]["userId"] = tax_filing_ins.user.id
@@ -55,8 +55,6 @@ def get_consolidated_data(tax_filing_ins):
         return_dict["incomeDetails"]["foreignAssets"]= tax_filing_ins.income.foreign_assets_value_exceeding_50000
         return_dict["incomeDetails"]["rentalIncome"]= tax_filing_ins.income.rental_income_in_usa
         return_dict["incomeDetails"]["income1099"]= tax_filing_ins.income.last_year_1099_misc_nec_income
-        return_dict["incomeDetails"]["incomeDescription"]=tax_filing_ins.income.income_description
-        return_dict["incomeDetails"]["incomeAmount"]= tax_filing_ins.income.income_amount
         return_dict["incomeDetails"]["taxFiledLastYear"]= tax_filing_ins.income.filed_taxes_last_year
     else:
         return_dict["incomeDetails"]["interestIncome"]= False
@@ -70,9 +68,16 @@ def get_consolidated_data(tax_filing_ins):
         return_dict["incomeDetails"]["foreignAssets"]= False
         return_dict["incomeDetails"]["rentalIncome"]= False
         return_dict["incomeDetails"]["income1099"]= False
-        return_dict["incomeDetails"]["incomeDescription"]= ""
-        return_dict["incomeDetails"]["incomeAmount"]= ""
         return_dict["incomeDetails"]["taxFiledLastYear"]= False
+
+    other_incomes = tax_filing_ins.other_incomes.all()
+    for other_income in other_incomes:
+        each_dict = dict()
+        each_dict["id"] = other_income.id
+        each_dict["incomeDescription"] = other_income.income_description
+        each_dict["incomeAmount"] = other_income.income_amount
+
+        return_dict["incomeDetails"]["otherIncomeDetails"].append(each_dict)
 
     #// additional Spouse Details (Initially hidden)
     if tax_filing_ins.user.status == "MARRIED":
@@ -155,4 +160,45 @@ def get_consolidated_data(tax_filing_ins):
 
     return_dict["id"] = tax_filing_ins.id
     
+    return return_dict
+
+def income_details_data(tax_filing_ins):
+    return_dict = {"otherIncomeDetails":[]}
+     #//Income Details
+    if tax_filing_ins.income:
+        return_dict["interestIncome"]= tax_filing_ins.income.interest_income
+        return_dict["dividendIncome"]= tax_filing_ins.income.dividend_income
+        return_dict["soldStocks"]= tax_filing_ins.income.sold_stocks
+        return_dict["soldCrypto"]= tax_filing_ins.income.sold_cryptocurrency
+        return_dict["foreignIncome"]= tax_filing_ins.income.foreign_country_income
+        return_dict["retirementAccounts"]= tax_filing_ins.income.other_benefits
+        return_dict["stateTaxRefund"]= tax_filing_ins.income.last_year_state_tax_refunds
+        return_dict["foreignBankAccount"]= tax_filing_ins.income.foreign_banks_account_balance_exceeding_10000
+        return_dict["foreignAssets"]= tax_filing_ins.income.foreign_assets_value_exceeding_50000
+        return_dict["rentalIncome"]= tax_filing_ins.income.rental_income_in_usa
+        return_dict["income1099"]= tax_filing_ins.income.last_year_1099_misc_nec_income
+        return_dict["taxFiledLastYear"]= tax_filing_ins.income.filed_taxes_last_year
+    else:
+        return_dict["interestIncome"]= False
+        return_dict["dividendIncome"]= False
+        return_dict["soldStocks"]= False
+        return_dict["soldCrypto"]= False
+        return_dict["foreignIncome"]= False
+        return_dict["retirementAccounts"]= False
+        return_dict["stateTaxRefund"]= False
+        return_dict["foreignBankAccount"]= False
+        return_dict["foreignAssets"]= False
+        return_dict["rentalIncome"]= False
+        return_dict["income1099"]= False
+        return_dict["taxFiledLastYear"]= False
+
+    other_incomes = tax_filing_ins.other_incomes.all()
+    for other_income in other_incomes:
+        each_dict = dict()
+        each_dict["id"] = other_income.id
+        each_dict["incomeDescription"] = other_income.income_description
+        each_dict["incomeAmount"] = other_income.income_amount
+
+        return_dict["otherIncomeDetails"].append(each_dict)
+
     return return_dict

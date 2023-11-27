@@ -20,15 +20,23 @@ class FinancialYearAdmin(admin.ModelAdmin):
 
 @admin.register(TaxFiling)
 class TaxFilingAdmin(admin.ModelAdmin):
-    list_display = ['user', 'year', 'income',  'refund_type', 'bank', 'tax_docs', 'status', 'updated_at']
+    list_display = ['user', 'year', 'income',  'refund_type', 'bank', 'status', 'updated_at']
 
 @admin.register(Income)
 class IncomeAdmin(admin.ModelAdmin):
     list_display = ["filing", "updated_at", "created_at"]
 
+@admin.register(OtherIncome)
+class OtherIncomeAdmin(admin.ModelAdmin):
+    list_display = ["filing", "income_description", "income_amount", "updated_at", "created_at"]
+
 @admin.register(Dependant)
 class DependantAdmin(admin.ModelAdmin):
     list_display = ['filing', 'name', 'relationship', 'visa_type']
+
+@admin.register(TaxDocs)
+class TaxDocsAdmin(admin.ModelAdmin):
+    list_display = ['filing', 'file_name', 'created_at', 'updated_at']
 
 @admin.register(TaxReturns)
 class TaxReturnsAdmin(admin.ModelAdmin):

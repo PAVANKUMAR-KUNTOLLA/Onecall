@@ -21,7 +21,7 @@ from .models import *
 from django.core.mail import EmailMessage
 from onecall.settings import MEDIA_ROOT, DEFAULT_FROM_EMAIL
 
-from .helpers import  get_consolidated_data
+from .helpers import  get_consolidated_data, income_details_data
 from users.serializers import UserProfileSerializer
 from .serializers import TaxFilingSerializer, FinancialYearSerializer,AppointmentSerializer,ReferalSerializer
 
@@ -245,7 +245,7 @@ def personal_contact_details(request):
                             }
 
                             # Creating the Dependant object with the non-None fields
-                            spouse_ins = User.objects.create(**create_fields_dependant, role="CLIENT", status="MARRIED")
+                            spouse_ins = User.objects.create(**create_fields_spouse, role="CLIENT", status="MARRIED")
                             spouse_ins.set_password("welcome")
                             spouse_ins.save()
                         user_ins.spouse = spouse_ins
@@ -577,6 +577,47 @@ def bank_details(request):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
+def other_income_details(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            #//Income Details
+
+            if "id" not in data.keys() or data["id"] == None:
+                context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
+                return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+            tax_filing_ins = TaxFiling.objects.get(id=data["id"])
+
+            if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
+                context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
+            
+            if "type" in data.keys() and data["type"] == "delete":
+                if "otherIncomeId" not in data.keys() or data["id"] == None:
+                    context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"Other Income Id is Required"}
+                    return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+                other_income_ins = OtherIncome.objects.get(id=data["otherIncomeId"])
+                tax_filing_ins.other_incomes.remove(other_income_ins.id)
+                tax_filing_ins.save()
+                other_income_ins.delete()
+
+            return_dict = income_details_data(tax_filing_ins)
+        
+            context = {"data":return_dict, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only GET & POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def income_details(request):
     data = request.data.copy()
     try:
@@ -606,59 +647,65 @@ def income_details(request):
             user_ins = User.objects.get(id=request.user.id)
             print(data)
 
-            if not tax_filing_ins.income or any([data[each] is not None for each in ["interestIncome", "dividendIncome", "soldStocks", "soldCrypto", "foreignIncome", "retirementAccounts", "stateTaxRefund", "foreignBankAccount", "foreignAssets", "rentalIncome", "income1099", "incomeDescription", "incomeAmount"]]):
-                if not tax_filing_ins.income:
-                    income_ins = Income.objects.create(
-                        filing=tax_filing_ins,
-                        interest_income=data["interestIncome"],
-                        dividend_income=data["dividendIncome"],
-                        sold_stocks=data["soldStocks"],
-                        sold_cryptocurrency=data["soldCrypto"],
-                        foreign_country_income=data["foreignIncome"],
-                        other_benefits=data["retirementAccounts"],
-                        last_year_state_tax_refunds=data["stateTaxRefund"],
-                        foreign_banks_account_balance_exceeding_10000=data["foreignBankAccount"],
-                        foreign_assets_value_exceeding_50000=data["foreignAssets"],
-                        rental_income_in_usa=data["rentalIncome"],
-                        last_year_1099_misc_nec_income=data["income1099"],
-                        income_description=data["incomeDescription"],
-                        income_amount=data["incomeAmount"],
-                    )
-                    income_ins.save()
-                    tax_filing_ins.income = income_ins
-                    tax_filing_ins.save()
+            if "type" in data.keys() and data["type"] == "otherIncome":
+              
+                income_ins = OtherIncome.objects.create(
+                    filing=tax_filing_ins,
+                    income_description=data["incomeDescription"],
+                    income_amount=data["incomeAmount"]
+                )
+                income_ins.save()
+                tax_filing_ins.other_incomes.add(income_ins.id)
+                tax_filing_ins.save()
 
-                else:
-                    income_ins = Income.objects.get(id=tax_filing_ins.income.id)
-                    if data["interestIncome"] is not None and data["interestIncome"] != income_ins.interest_income:
-                        income_ins.interest_income = data["interestIncome"]
-                    if data["dividendIncome"] is not None and data["dividendIncome"] != income_ins.dividend_income:
-                        income_ins.dividend_income = data["dividendIncome"]
-                    if data["soldStocks"] is not None and data["soldStocks"] != income_ins.sold_stocks:
-                        income_ins.sold_stocks = data["soldStocks"]
-                    if data["soldCrypto"] is not None and data["soldCrypto"] != income_ins.sold_cryptocurrency:
-                        income_ins.sold_cryptocurrency = data["soldCrypto"]
-                    if data["foreignIncome"] is not None and data["foreignIncome"] != income_ins.foreign_country_income:
-                        income_ins.foreign_country_income = data["foreignIncome"]
-                    if data["retirementAccounts"] is not None and data["retirementAccounts"] != income_ins.other_benefits:
-                        income_ins.other_benefits = data["retirementAccounts"]
-                    if data["stateTaxRefund"] is not None and data["stateTaxRefund"] != income_ins.last_year_state_tax_refunds:
-                        income_ins.last_year_state_tax_refunds = data["stateTaxRefund"]
-                    if data["foreignBankAccount"] is not None and data["foreignBankAccount"] != income_ins.foreign_banks_account_balance_exceeding_10000:
-                        income_ins.foreign_banks_account_balance_exceeding_10000 = data["foreignBankAccount"]
-                    if data["foreignAssets"] is not None and data["foreignAssets"] != income_ins.foreign_assets_value_exceeding_50000:
-                        income_ins.foreign_assets_value_exceeding_50000 = data["foreignAssets"]
-                    if data["rentalIncome"] is not None and data["rentalIncome"] != income_ins.rental_income_in_usa:
-                        income_ins.rental_income_in_usa = data["rentalIncome"]
-                    if data["income1099"] is not None and data["income1099"] != income_ins.last_year_1099_misc_nec_income:
-                        income_ins.last_year_1099_misc_nec_income = data["income1099"]
-                    if data["incomeDescription"] is not None and data["incomeDescription"] != income_ins.income_description:
-                        income_ins.income_description = data["incomeDescription"]
-                    if data["incomeAmount"] is not None and data["incomeAmount"] != income_ins.income_amount:
-                        income_ins.income_amount = data["incomeAmount"]
-                  
-                    income_ins.save()
-        
+            else:
+                if not tax_filing_ins.income or any([data[each] is not None for each in ["interestIncome", "dividendIncome", "soldStocks", "soldCrypto", "foreignIncome", "retirementAccounts", "stateTaxRefund", "foreignBankAccount", "foreignAssets", "rentalIncome", "income1099"]]):
+                    if not tax_filing_ins.income:
+                        income_ins = Income.objects.create(
+                            filing=tax_filing_ins,
+                            interest_income=data["interestIncome"],
+                            dividend_income=data["dividendIncome"],
+                            sold_stocks=data["soldStocks"],
+                            sold_cryptocurrency=data["soldCrypto"],
+                            foreign_country_income=data["foreignIncome"],
+                            other_benefits=data["retirementAccounts"],
+                            last_year_state_tax_refunds=data["stateTaxRefund"],
+                            foreign_banks_account_balance_exceeding_10000=data["foreignBankAccount"],
+                            foreign_assets_value_exceeding_50000=data["foreignAssets"],
+                            rental_income_in_usa=data["rentalIncome"],
+                            last_year_1099_misc_nec_income=data["income1099"],
+                        )
+                        income_ins.save()
+                        tax_filing_ins.income = income_ins
+                        tax_filing_ins.save()
+
+                    else:
+                        income_ins = Income.objects.get(id=tax_filing_ins.income.id)
+                        if data["interestIncome"] is not None and data["interestIncome"] != income_ins.interest_income:
+                            income_ins.interest_income = data["interestIncome"]
+                        if data["dividendIncome"] is not None and data["dividendIncome"] != income_ins.dividend_income:
+                            income_ins.dividend_income = data["dividendIncome"]
+                        if data["soldStocks"] is not None and data["soldStocks"] != income_ins.sold_stocks:
+                            income_ins.sold_stocks = data["soldStocks"]
+                        if data["soldCrypto"] is not None and data["soldCrypto"] != income_ins.sold_cryptocurrency:
+                            income_ins.sold_cryptocurrency = data["soldCrypto"]
+                        if data["foreignIncome"] is not None and data["foreignIncome"] != income_ins.foreign_country_income:
+                            income_ins.foreign_country_income = data["foreignIncome"]
+                        if data["retirementAccounts"] is not None and data["retirementAccounts"] != income_ins.other_benefits:
+                            income_ins.other_benefits = data["retirementAccounts"]
+                        if data["stateTaxRefund"] is not None and data["stateTaxRefund"] != income_ins.last_year_state_tax_refunds:
+                            income_ins.last_year_state_tax_refunds = data["stateTaxRefund"]
+                        if data["foreignBankAccount"] is not None and data["foreignBankAccount"] != income_ins.foreign_banks_account_balance_exceeding_10000:
+                            income_ins.foreign_banks_account_balance_exceeding_10000 = data["foreignBankAccount"]
+                        if data["foreignAssets"] is not None and data["foreignAssets"] != income_ins.foreign_assets_value_exceeding_50000:
+                            income_ins.foreign_assets_value_exceeding_50000 = data["foreignAssets"]
+                        if data["rentalIncome"] is not None and data["rentalIncome"] != income_ins.rental_income_in_usa:
+                            income_ins.rental_income_in_usa = data["rentalIncome"]
+                        if data["income1099"] is not None and data["income1099"] != income_ins.last_year_1099_misc_nec_income:
+                            income_ins.last_year_1099_misc_nec_income = data["income1099"]
+                    
+                        income_ins.save()
+                    
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
             return Response(status=status.HTTP_200_OK, data= context)
         else:
@@ -692,7 +739,9 @@ def upload_tax_docs(request):
                 # Access the uploaded file from request.FILES
                 uploaded_file = request.FILES['upload']
                 if data["type"] == "docs":
-                    tax_filing_ins.tax_docs = uploaded_file
+                    tax_docs_ins = TaxDocs.objects.create(filing=tax_filing_ins, file_name=uploaded_file)
+                    tax_docs_ins.save()
+                    tax_filing_ins.tax_docs.add(tax_docs_ins.id)
                     tax_filing_ins.save()
                 elif data["type"] == "returns":
                     tax_returns_ins = TaxReturns.objects.create(filing=tax_filing_ins, file_name=uploaded_file, remarks=data["remarks"])
@@ -710,24 +759,27 @@ def upload_tax_docs(request):
                 return_dict = list()
 
                 # Return the file associated with tax_filing_ins.tax_docs
-                if data["type"] == "docs":
-                    tax_docs = tax_filing_ins.tax_docs
+                if data["type"] == "docs" and tax_filing_ins.tax_docs:
+                    tax_docs = tax_filing_ins.tax_docs.all()
+
                     if tax_docs:
-                        # Prepare the response data for the associated file
-                        file_name = tax_docs.name  # Get the file name
-                        file_size_in_bytes = os.path.getsize(tax_docs.path)
-                        file_size_kb = round(file_size_in_bytes / 1024, 2)
-                        file_size_mb = round(file_size_in_bytes / (1024 * 1024), 2)
-                        file_created_at = os.path.getctime(tax_docs.path)
-                        upload_time = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
+                        for each in tax_docs:
+                            # Prepare the response data for the associated file
+                            file_name = each.file_name.name  # Get the file name
+                            file_size_in_bytes = os.path.getsize(each.file_name.path)
+                            file_size_kb = round(file_size_in_bytes / 1024, 2)
+                            file_size_mb = round(file_size_in_bytes / (1024 * 1024), 2)
+                            file_created_at = os.path.getctime(each.file_name.path)
+                            upload_time = datetime.datetime.fromtimestamp(file_created_at).strftime("%Y-%m-%d %H:%M:%S")
 
-                        each_file_dict = {
-                            "file_name": file_name.replace("TaxDocs/", ""),
-                            "upload_time": upload_time,
-                            "file_size": f'{file_size_kb} (KB)/{file_size_mb} (MB)'
-                        }
+                            each_file_dict = {
+                                "id":each.id,
+                                "file_name": file_name.replace("TaxDocs/", ""),
+                                "upload_time": upload_time,
+                                "file_size": f'{file_size_kb} (KB)/{file_size_mb} (MB)'
+                            }
 
-                        return_dict.append( each_file_dict)
+                            return_dict.append( each_file_dict)
 
                 elif data["type"] == "returns" and tax_filing_ins.tax_returns:
                     tax_returns = tax_filing_ins.tax_returns.all()
@@ -899,8 +951,9 @@ def delete_tax_docs(request):
                     return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
 
                 if data["type"] == "docs":
-                    tax_filing_ins.tax_docs = None
-                    os.remove(os.path.join(MEDIA_ROOT, file_parent_path, file_name))
+                    tax_docs_ins = TaxDocs.objects.get(id=data["file_id"])
+                    tax_filing_ins.tax_docs.remove(tax_docs_ins.id)
+                    tax_docs_ins.delete()
 
                 elif data["type"] == "returns":
                     tax_returns_ins = TaxReturns.objects.get(id=data["file_id"])

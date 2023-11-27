@@ -626,7 +626,7 @@
           <h2>
             Ready To Talk? <span>I want to talk to your experts in:</span>
           </h2>
-          <form class="ready-to-talk">
+          <form class="ready-to-talk" id="consultationForm">
             <select
               class="form-select form-control"
               aria-label="Default select example"
@@ -1309,6 +1309,12 @@
     <script src="/static/website_assets/js/contact-form-script.js"></script>
     <script src="/static/website_assets/js/ajaxchimp.min.js"></script>
     <script src="/static/website_assets/js/custom.js"></script>
+    <script>
+      document.getElementById("consultationForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevents the default form submission
+        window.open("/app/home", "_blank");// Redirect to the "/" route
+      });
+    </script>
   </body>
 
   <!-- Mirrored from appletax.rjaytech.com/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 01 Nov 2023 12:32:40 GMT -->
