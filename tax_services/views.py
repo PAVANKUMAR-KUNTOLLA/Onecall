@@ -36,6 +36,9 @@ def appointment(request):
 def contact_us(request):
     return render(request, 'contact-us.html')
 
+def refund_status(request):
+    return render(request, 'refund-status.html')
+
 def services(request):
     return render(request, 'services.html')
 

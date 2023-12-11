@@ -108,6 +108,24 @@
                     >Services</a
                   >
                 </li>
+                {% comment %}
+                <li class="nav-item">
+                  <a
+                    href="/"
+                    id="dataSecurityLink"
+                    class="nav-link border-style active"
+                    >Data Security</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a
+                    href="/"
+                    id="referalsLink"
+                    class="nav-link border-style active"
+                    >Referals</a
+                  >
+                </li>
+                {% endcomment %}
 
                 <!-- <li class="nav-item">
                   <a href="#" class="nav-link dropdown-toggle border-style">
@@ -163,6 +181,7 @@
                       </div>
                     </div>
                   </li>
+                  {% comment %}
                   <li>
                     <a
                       href="/app/home"
@@ -173,6 +192,7 @@
                       <i class="ri-book-line"></i>
                     </a>
                   </li>
+                  {% endcomment %}
                   <li>
                     <a
                       href="/app/home"
@@ -689,8 +709,9 @@
     <!-- End Pricing Area -->
 
     <!-- Start Footer Area -->
-    <div class="footer-area bg-color-022641 pt-100 pb-70">
-      <div class="container">
+    <div class="footer-area bg-color-022641 pt-50 pb-10">
+      <div class="container footer-main">
+        {% comment %}
         <div class="row">
           <div class="col-lg-3 col-sm-6">
             <div
@@ -756,7 +777,24 @@
           <div class="col-lg-3 col-sm-6">
             <div
               class="single-footer-widget wow animate__animated animate__fadeInUp delay-0-6s"
-            ></div>
+            >
+              <h3>Useful Links</h3>
+
+              <ul class="import-link">
+                <li>
+                  <a href="#">Our Team</a>
+                </li>
+                <li>
+                  <a href="#">FAQs</a>
+                </li>
+                <li>
+                  <a href="#">Terms & Conditions</a>
+                </li>
+                <li>
+                  <a href="#">Privacy Policy</a>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div class="col-lg-3 col-sm-6">
@@ -772,9 +810,7 @@
                 </li>
                 <li>
                   <span>Email:</span>
-                  <a href="mailto:onecalltaxServices@gmail.com"
-                    >onecalltaxServices@gmail.com</a
-                  >
+                  <a href="mailto:taks@gmail.com">taks@gmail.com</a>
                 </li>
                 <li>
                   <span>Phone:</span>
@@ -788,15 +824,36 @@
             </div>
           </div>
         </div>
+        {% endcomment %}
+        <img
+          src="/static/website_assets/images/white-logo-footer.png"
+          alt="Image"
+          class="footer-logo"
+        />
+
+        <p class="footer-time">Business Hours &nbsp; 08:00 AM - 05:00 PM CST</p>
+        <div class="col-lg-6 pb-10">
+          <div
+            class="copy-right-content wow animate__animated animate__fadeInLeft delay-0-2s"
+          >
+            <p class="copy-right-footer" style="margin-bottom: 20px">
+              © All rights reserved for
+              <a href="https://www.onecalltaxservices.com/" target="_blank"
+                >One Call Tax Services</a
+              >
+            </p>
+          </div>
+        </div>
       </div>
     </div>
     <!-- End Footer Area -->
 
     <!-- Start Copy Right Area -->
-    <div class="copy-right-area bg-color-022641">
+    <div class="copy-right-area bg-color-022641 pb-20">
       <div class="container">
         <div class="copy-right-wrap">
           <div class="row">
+            {% comment %}
             <div class="col-lg-6">
               <div
                 class="copy-right-content wow animate__animated animate__fadeInLeft delay-0-2s"
@@ -809,7 +866,8 @@
                 </p>
               </div>
             </div>
-            <div class="col-lg-6">
+            {% endcomment %}
+            <div class="col-lg-6 footer-icons">
               <div
                 class="copy-right-social-icon wow animate__animated animate__fadeInRight delay-0-2s"
               >
