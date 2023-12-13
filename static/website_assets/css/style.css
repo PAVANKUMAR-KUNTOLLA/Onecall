@@ -3250,6 +3250,15 @@ Page Banner Area Style
   background-image: url(../images/banner/services_innerbanner.png);
 }
 
+ .refund-status {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  z-index: 1;
+  background-image: url(../images/banner/refund_status_banner.png);
+}
+
 .page-banner-area::before {
   content: "";
   position: absolute;

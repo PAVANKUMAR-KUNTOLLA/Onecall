@@ -59,7 +59,7 @@
           <div class="ball"></div>
         </div>
       </div>
-    </div>
+    </div> 
     <!-- End Preloader Area -->
     <div class="header-time">
       <p class="header-time-para">Business Hours &nbsp;  08:00 AM - 05:00 PM CST</p>
@@ -107,7 +107,7 @@
                 </li>
 
                 <li class="nav-item">
-                  <a href="/services" class="nav-link border-style active"
+                  <a href="#" id="servicesLink" class="nav-link border-style active"
                     >Services</a
                   >
                 </li>
@@ -432,7 +432,7 @@
     <!-- End Futures Area -->
 
     <!-- Start About Area -->
-    <div class="about-area pb-100 pt-70" id="about-section-id">
+    <div class="about-area pb-100 pt-70 pb-50" id="about-section-id">
       <div class="container-fluid">
         <div class="row align-items-center">
           <div class="col-lg-6">
@@ -537,7 +537,7 @@
     <!-- End About Area -->
 
     <!-- Start Services Area -->
-    <div class="services-area">
+    <div class="services-area pt-70" id="services-section-id" >
       <div class="container-fluid">
         <div
           class="section-title wow animate__animated animate__fadeInUp delay-0-2s"
@@ -776,7 +776,7 @@
             class="wow animate__animated animate__fadeInUp delay-0-2s"
           >
             <img
-            src="/static/website_assets/images/banner/referal banner.jpg"
+            src="/static/website_assets/images/banner/referal banner.png"
               alt="Images"
             />
           </div>
@@ -1421,6 +1421,19 @@
 
         // Get the element to scroll to
         const targetElement = document.getElementById("about-section-id");
+
+        // Scroll to the element with smooth behavior
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Adjust block value as needed
+      });
+
+      const services = document.getElementById("servicesLink");
+
+      // Add an event listener for click
+      services.addEventListener("click", function(event) {
+        event.preventDefault(); // Prevent default behavior of the link (e.g., jumping to "#")
+
+        // Get the element to scroll to
+        const targetElement = document.getElementById("services-section-id");
 
         // Scroll to the element with smooth behavior
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Adjust block value as needed

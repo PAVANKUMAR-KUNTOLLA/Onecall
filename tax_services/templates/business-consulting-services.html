@@ -60,7 +60,9 @@
       </div>
     </div>
     <!-- End Preloader Area -->
-
+    <div class="header-time">
+      <p class="header-time-para">Business Hours &nbsp;  08:00 AM - 05:00 PM CST</p>
+    </div>
     <!-- Start Navbar Area -->
     <div class="navbar-area">
       <div class="mobile-responsive-nav">
@@ -105,10 +107,10 @@
 
                 <li class="nav-item">
                   <a
-                    href="#"
+                    href="/refund-status"
                     class="nav-link dropdown-toggle border-style active"
                   >
-                    Services
+                    Refund Status
                   </a>
                 </li>
 
@@ -130,8 +132,10 @@
                 </li>
               </ul>
 
+             
               <div class="others-options">
                 <ul class="d-flex align-items-center">
+                  {% comment %}
                   <li class="srac-bar">
                     <div class="option-item">
                       <div class="search-btn">
@@ -161,6 +165,7 @@
                       </div>
                     </div>
                   </li>
+                  {% endcomment %} {% comment %}
                   <li>
                     <a
                       href="/app/home"
@@ -171,13 +176,32 @@
                       <i class="ri-book-line"></i>
                     </a>
                   </li>
+                  {% endcomment %}
+                  <div class="support">
+                    <p class="support-text">Support@octs.com</p>
+                    <p class="support-text">
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+1 664 248 1357
+                    </p>
+                  </div>
+                  <div class="logo irs-logo">
+                    <a href="/">
+                      <img
+                        src="/static/website_assets/images/irs.png"
+                        class="main-logo"
+                        alt="logo"
+                        height="30px"
+                        width="80px"
+                      />
+                    </a>
+                  </div>
+
                   <li>
                     <a
                       href="/app/home"
                       target="_blank"
                       class="default-btn active"
                     >
-                      <span>login</span>
+                      <span>Login</span>
                       <i class="ri-book-line"></i>
                     </a>
                   </li>

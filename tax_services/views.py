@@ -1052,6 +1052,33 @@ def book_appointment(request):
             tax_filing_ins.appointments.add(appointment_ins.id)
             tax_filing_ins.save()
             
+            email=tax_filing_ins.user.email
+
+            email_body = f'''Dear Client,
+
+I hope this message finds you well. We are delighted that you've chosen our online appointment scheduling system, and I'm pleased to confirm that your appointment has been successfully booked and finalized.
+
+Appointment Details:
+Date: {datetime.datetime.strftime(appointment_ins.start_time,"%m-%d-%Y")}
+Time: {datetime.datetime.strftime(appointment_ins.start_time,"%H:%M")}
+
+During the tax interview, which is expected to last approximately 30 minutes, one of our tax associates will gather all the necessary information from you. We will meticulously review the details you provided on our website to ensure accurate reporting of all income details to the IRS. Additionally, we will diligently collect all eligible expenses that could potentially save you money on taxes. Following the call, if there are no pending information requirements from your end, our tax professionals will promptly work on estimating your refund and provide you with a quote within 3 to 4 hours.
+
+Please make a note of the following information:
+Feel free to review the specifics on our website or reach out to our support team if any particular requirements or preparations are necessary for your upcoming appointment. Our aim is to ensure a smooth and productive interview. Kindly inform us at your earliest convenience if there are any changes to your schedule or if a reschedule is needed.
+
+Thank you for choosing One Call Tax Services for your Tax Preparation needs. We are eagerly looking forward to assisting you and ensuring a seamless experience. For any inquiries or concerns, please do not hesitate to contact our customer support at Support@octs.com or +1 664 248 1357.
+
+Best regards,
+ONE CALL TAX SERVICES INC
+            '''
+
+            subject = "Confirmation of Your Scheduled Appointment via Our Website"            
+            from_email = DEFAULT_FROM_EMAIL
+            to = [tax_filing_ins.user.email, ]
+            email = EmailMessage(subject, email_body, from_email, to)
+            email.send()
+            
             context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message":"Appointment Booked successfully"}
             return Response(status=status.HTTP_200_OK, data= context)
             
