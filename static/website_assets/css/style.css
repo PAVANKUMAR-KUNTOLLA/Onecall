@@ -5442,3 +5442,88 @@ Animation Area Style*/
   animation-delay: 1s;
 }
 /*# sourceMappingURL=style.css.map */
+
+
+/*custom styles*/
+.header-time {
+  background-color: #022641;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+ .header-time-para {
+  font-size: 15px;
+  line-height: 28px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
+.irs-logo {
+  margin-right: 50px;
+}
+
+.support{
+  margin-right: 20px;
+}
+
+.support-text{
+  font-size: 14px;
+  line-height: 28px;
+  font-weight: bold;
+  margin-bottom: -10px;
+}
+
+
+.footer-main{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  
+}
+
+.footer-logo{
+  width: 240px;
+  height: 80px;
+  margin-bottom: 10px;
+}
+
+.copy-right-footer{
+  font-size: 15px;
+  line-height: 28px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  
+}
+
+.footer-time {
+  font-size: 15px;
+  line-height: 28px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  line-gap-override: 2px;
+
+}
+
+.footer-icons{
+  
+ margin-left: 100px;
+}
+.side-by-side-links {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.side-by-side-links li {
+  margin-right: 20px; /* Adjust the spacing between the list items */
+}
+
+.side-by-side-links a {
+  text-decoration: none;
+}
+
