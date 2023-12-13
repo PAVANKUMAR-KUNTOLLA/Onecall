@@ -139,7 +139,6 @@ def personal_contact_details(request):
             if "id" not in data.keys() or data["id"] == None:
                 context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":"TaxFiling Id is Required"}
                 return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
-            print(data)
             tax_filing_ins = TaxFiling.objects.get(id=data["id"])
 
             if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
@@ -165,7 +164,7 @@ def personal_contact_details(request):
                 if user_ins.ssn !=  data["ssn"]:
                     user_ins.ssn =  data["ssn"]
                 if user_ins.dob  != data["dateOfBirth"]:
-                    user_ins.dob = datetime.datetime.strptime(data["dateOfBirth"], "%m/%d/%Y")
+                    user_ins.dob = datetime.datetime.strptime(data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%fZ") + datetime.timedelta(seconds=19800)
                 if user_ins.gender !=  data["gender"]:
                     user_ins.gender =  data["gender"]
                 if user_ins.job_title != data["occupation"]:
@@ -242,7 +241,7 @@ def personal_contact_details(request):
 
                             # Remove the fields with None values from the request_data and map the attribute names
                             create_fields_spouse = {
-                                model_attr: datetime.datetime.strptime(data[request_attr], "%m/%d/%Y") if request_attr == "spouseDateOfBirth" and data[request_attr] is not None else data[request_attr]
+                                model_attr: datetime.datetime.strptime(data[request_attr], "%Y-%m-%dT%H:%M:%S.%fZ") if request_attr == "spouseDateOfBirth" and data[request_attr] is not None else data[request_attr]
                                 for model_attr, request_attr in attribute_mapping.items() 
                                 if data[request_attr] is not None
                             }
@@ -264,7 +263,7 @@ def personal_contact_details(request):
                         if spouse_ins.ssn != data["spouseSsnOrItin"]:
                             spouse_ins.ssn = data["spouseSsnOrItin"]
                         if spouse_ins.dob != data["spouseDateOfBirth"]:
-                            spouse_ins.dob = datetime.datetime.strptime(data["spouseDateOfBirth"], "%m/%d/%Y")
+                            spouse_ins.dob = datetime.datetime.strptime(data["spouseDateOfBirth"], "%Y-%m-%dT%H:%M:%S.%fZ") + datetime.timedelta(seconds=19800)
                         if spouse_ins.gender != data["spouseGender"]:
                             spouse_ins.gender = data["spouseGender"]
                         if spouse_ins.job_title != data["spouseOccupation"]:
@@ -353,8 +352,8 @@ def add_dependant(request):
                     update_fields['last_name'] = data["additionalLastName"]
                 if data["additionalSsnOrItin"] is not None and dependant_ins.ssn != data["additionalSsnOrItin"]:
                     update_fields['ssn'] = data["additionalSsnOrItin"]
-                if data["additionalDateOfBirth"] is not None and dependant_ins.dob != datetime.datetime.strptime(data["additionalDateOfBirth"], "%m/%d/%Y"):
-                    update_fields['dob'] = datetime.datetime.strptime(data["additionalDateOfBirth"], "%m/%d/%Y")
+                if data["additionalDateOfBirth"] is not None and dependant_ins.dob != datetime.datetime.strptime(data["additionalDateOfBirth"], "%Y-%m-%dT%H:%M:%S.%fZ"):
+                    update_fields['dob'] = datetime.datetime.strptime(data["additionalDateOfBirth"], "%Y-%m-%dT%H:%M:%S.%fZ") + datetime.timedelta(seconds=19800)
                 if data["additionalGender"] is not None and dependant_ins.gender != data["additionalGender"]:
                     update_fields['gender'] = data["additionalGender"]
                 if data["additionalOccupation"] is not None and dependant_ins.job_title != data["additionalOccupation"]:
@@ -391,7 +390,7 @@ def add_dependant(request):
 
                 # Remove the fields with None values from the request_data and map the attribute names
                 create_fields_dependant = {
-                    model_attr: datetime.datetime.strptime(data[request_attr], "%m/%d/%Y") if request_attr == "additionalDateOfBirth" and data[request_attr] is not None else data[request_attr]
+                    model_attr: datetime.datetime.strptime(data[request_attr], "%Y-%m-%dT%H:%M:%S.%fZ") if request_attr == "additionalDateOfBirth" and data[request_attr] is not None else data[request_attr]
                     for model_attr, request_attr in attribute_mapping.items() 
                     if data[request_attr] is not None
                 }
@@ -1031,21 +1030,22 @@ def book_appointment(request):
             if not (request.user.id ==  tax_filing_ins.user.id or request.user.is_admin):
                 context = {"data":None, "status_flag":False, "status":status.HTTP_401_UNAUTHORIZED, "message":"UnAuthorized"}
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data=context)
-            start_date = data["date"]
-            start_time = data["time"]
-
+           
             # Parse the start time and date
-            start_datetime = datetime.datetime.strptime(f"{start_date} {start_time}", "%m/%d/%Y %H:%M")
+            hours = int(data["time"].split(":")[0])*3600
+            minutes = data["time"].split(":")[1]
+            minutes = 0 if minutes == "00" else 1800
+            start_datetime = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S.%fZ") + datetime.timedelta(seconds=19800) + datetime.timedelta(seconds=hours+minutes)
 
             # Calculate the end time by adding 30 minutes
             end_datetime = start_datetime + datetime.timedelta(minutes=30)
 
             # Create aware datetimes with the specified time zone
-            start_datetime_aware = pytz.timezone(data["timezone"]).localize(start_datetime)
-            end_datetime_aware = pytz.timezone(data["timezone"]).localize(end_datetime)
+            # start_datetime_aware = pytz.timezone(data["timezone"]).localize(start_datetime)
+            # end_datetime_aware = pytz.timezone(data["timezone"]).localize(end_datetime)
 
             # Create and save the appointment
-            appointment_ins = Appointment.objects.create(filing=tax_filing_ins, start_time=start_datetime_aware, end_time=end_datetime_aware, time_zone=data["timezone"])
+            appointment_ins = Appointment.objects.create(filing=tax_filing_ins, start_time=start_datetime, end_time=end_datetime, time_zone=data["timezone"])
             appointment_ins.save()
 
             # Update the tax_filing_ins with the appointment
