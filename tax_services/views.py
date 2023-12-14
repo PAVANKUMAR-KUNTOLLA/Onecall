@@ -1012,6 +1012,27 @@ def appointment_details(request):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
+def latest_appointment(request):
+    data = request.data.copy()
+    try:
+        if request.method == "POST":
+            queryset = Appointment.objects.filter(filing__user__id=request.user.id,status="BOOKED").order_by("-created_at")
+            data = AppointmentSerializer(queryset, many=True).data
+                
+            context = {"data":data, "status_flag":True, "status":status.HTTP_200_OK, "message":None}
+            return Response(status=status.HTTP_200_OK, data= context)
+            
+        else:
+            context = {"data":None, "status_flag":True, "status":status.HTTP_200_OK, "message": "Only POST Method Available"}
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED, data= context)
+    except Exception as excepted_message:
+        print(str(excepted_message))
+        context = {"data":None, "status_flag":False, "status":status.HTTP_400_BAD_REQUEST, "message":str(excepted_message)}
+        return Response(status=status.HTTP_400_BAD_REQUEST, data= context)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def book_appointment(request):
     data = request.data.copy()
     try:

@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/v1/book_appointment/', book_appointment),
     path('api/v1/update_appointment/', update_appointment),
     path('api/v1/appointment_details/', appointment_details),
+    path('api/v1/latest_appointment/', latest_appointment),
     path('api/v1/delete_appointment/', delete_appointment),
     path('api/v1/create_refund/', create_refund),
     path('api/v1/refunds/', refunds),
