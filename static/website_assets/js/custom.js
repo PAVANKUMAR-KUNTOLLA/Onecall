@@ -149,7 +149,7 @@
     nav: false,
     dots: false,
     autoplay: true,
-    autoplayTimeout: 600, // Set autoplay timeout to 600 milliseconds
+    autoplayTimeout: 2000, // Set autoplay timeout to 600 milliseconds
     responsive: {
       0: {
         items: 2,

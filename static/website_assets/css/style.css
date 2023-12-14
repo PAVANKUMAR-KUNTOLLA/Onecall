@@ -467,17 +467,17 @@ Navbar Area Style
   transition: all ease 0.5s;
 }
 
-.desktop-nav .navbar .navbar-nav .nav-item a.border-style:hover::after {
+/* .desktop-nav .navbar .navbar-nav .nav-item a.border-style:hover::after {
   right: auto;
   left: 0;
   width: 100%;
-}
+} */
 
-.desktop-nav .navbar .navbar-nav .nav-item a.border-style.active::after {
+/* .desktop-nav .navbar .navbar-nav .nav-item a.border-style.active::after {
   right: auto;
   left: 0;
   width: 100%;
-}
+} */
 
 .desktop-nav .navbar .navbar-nav .nav-item a.dropdown-toggle {
   padding-right: 20px;
@@ -5526,4 +5526,33 @@ Animation Area Style*/
 .side-by-side-links a {
   text-decoration: none;
 }
+.slider {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
 
+.slide-track {
+  display: flex;
+  padding: 0;
+  animation: cambio 40s linear infinite;
+}
+
+.slide {
+  padding: 0 40px;
+  list-style: none;
+}
+
+.slide img {
+  max-width: fit-content !important;
+  height: auto !important;
+}
+
+@keyframes cambio {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(calc(-100% - 20px * 6)); /* Adjusted the total width of logos and spaces */
+  }
+}
