@@ -1088,7 +1088,7 @@ During the tax interview, which is expected to last approximately 30 minutes, on
 Please make a note of the following information:
 Feel free to review the specifics on our website or reach out to our support team if any particular requirements or preparations are necessary for your upcoming appointment. Our aim is to ensure a smooth and productive interview. Kindly inform us at your earliest convenience if there are any changes to your schedule or if a reschedule is needed.
 
-Thank you for choosing One Call Tax Services for your Tax Preparation needs. We are eagerly looking forward to assisting you and ensuring a seamless experience. For any inquiries or concerns, please do not hesitate to contact our customer support at Support@octs.com or +1 664 248 1357.
+Thank you for choosing One Call Tax Services for your Tax Preparation needs. We are eagerly looking forward to assisting you and ensuring a seamless experience. For any inquiries or concerns, please do not hesitate to contact our customer support at support@onecalltaxservices.com or (201) 277-3977.
 
 Best regards,
 ONE CALL TAX SERVICES INC
