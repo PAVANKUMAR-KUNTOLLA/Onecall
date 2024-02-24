@@ -119,10 +119,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
     address = serializers.SerializerMethodField()
     referred_by = serializers.SerializerMethodField()
     referral_id = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('id', 'first_name', "last_name", "gender", 'email', "role", "phone_no", "address", "referred_by", "referral_id")
+        
+    def get_role(self, instance):
+        if instance.role:
+            return instance.role
+        else:
+            return "CLIENT"
         
     def get_phone_no(self, instance):
         if instance.contact:

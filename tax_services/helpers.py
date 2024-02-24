@@ -14,7 +14,7 @@ def get_consolidated_data(tax_filing_ins):
     return_dict["personalDetails"]["occupation"]= tax_filing_ins.user.job_title
     return_dict["personalDetails"]["residentialStatus"]= tax_filing_ins.user.residential_status
     return_dict["personalDetails"]["email"]= tax_filing_ins.user.email
-    return_dict["personalDetails"]["taxPayerStatus"]= tax_filing_ins.user.status
+    return_dict["personalDetails"]["taxPayerStatus"]= tax_filing_ins.user.status if tax_filing_ins.user.status  else "SINGLE"
 
     #// Contact Details
     if tax_filing_ins.user.contact:

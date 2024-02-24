@@ -50,7 +50,7 @@ class User(AbstractUser):
     gender = models.CharField(max_length=255, choices=GENDER_CHOICES, null=True, blank=True)
     job_title = models.CharField(max_length=555, null=True, blank=True)
     residential_status = models.CharField(max_length=255, null=True, blank=True)
-    status = models.CharField(max_length=255, choices=MARITAL_CHOICES, null=True, blank=True)
+    status = models.CharField(max_length=255, choices=MARITAL_CHOICES, null=True, blank=True , default = "SINGLE")
     spouse = models.ForeignKey("users.User", on_delete=models.RESTRICT, null=True, blank=True, related_name="partner")
     contact = models.ForeignKey("users.Contact", on_delete=models.CASCADE, blank=True, null=True, related_name="contact_info")
     tax_filings = models.ManyToManyField("tax_services.TaxFiling", related_name="filings")
