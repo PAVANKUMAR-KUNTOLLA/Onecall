@@ -236,7 +236,7 @@ def personal_contact_details(request):
                                 "job_title": "spouseOccupation",
                                 "email": "spouseEmail",
                                 "apply_for_itin": "spouseApplyForItin",
-                                "residential_status": "spouseVisaType",
+                                "residential_status": "spouseResidentialStatus",
                             }
 
                             # Remove the fields with None values from the request_data and map the attribute names
