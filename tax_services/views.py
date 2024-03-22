@@ -196,7 +196,7 @@ def personal_contact_details(request):
                         user_ins.contact = contact_ins
                         user_ins.save()
                     else:
-                        contact_ins = Contact.objects.get(user__id=request.user.id)
+                        contact_ins = Contact.objects.get(user__id=tax_filing_ins.user.id)
                         if contact_ins.street != data["street"]:
                             contact_ins.street = data["street"]
                         if contact_ins.apartment_no != data["apartment"]:
@@ -253,7 +253,7 @@ def personal_contact_details(request):
                         user_ins.spouse = spouse_ins
                         user_ins.save()
                     else:
-                        spouse_ins = User.objects.get(id=request.user.spouse.id)
+                        spouse_ins = User.objects.get(id=tax_filing_ins.user.spouse.id)
                         if spouse_ins.first_name != data["spouseFirstName"]:
                             spouse_ins.first_name = data["spouseFirstName"]
                         if spouse_ins.middle_name != data["spouseMiddleInitial"]:
