@@ -150,7 +150,7 @@ def personal_contact_details(request):
             for key, value in data.items():
                 if value == "":
                     data[key] = None
-            user_ins = User.objects.get(id=request.user.id)
+            user_ins = User.objects.get(id=tax_filing_ins.user.id)
             print(data)
 
             with transaction.atomic():
